@@ -1,15 +1,18 @@
 <template>
 	<div>
 	  <h1> Text Element Examples</h1>
-	  	<lq-text :form-name="formName" name="name" ></lq-text>
-	  	<button @click="push('names', '')">Add More Text</button>
+
+	  	<lq-text :form-name="formName" name="0.name" ></lq-text>
+	  	<lq-text :form-name="formName" name="0.password" ></lq-text>
+
+	  	<button @click="push('0.names', '')">Add More Text</button>
 	
-	  		<lq-text v-for="(item, index) in getElement('names', '')"  :form-name="formName" :name="`names.${index}`" :key="`${formName}.names.${index}`"></lq-text>
+	  	<lq-text v-for="(item, index) in getElement('0.names', '')"  :form-name="formName" :name="`0.names.${index}`" :key="`${formName}.0.names.${index}`"></lq-text>
 
 
-	  	<button @click="unshift('emails', '')">Add More Email Above</button>
+	  	<button @click="unshift('0.emails', '')">Add More Email Above</button>
 	
-	  	<lq-text v-for="(item, index) in getElement('emails', '')"  :form-name="formName" :name="`emails.${index}`" :key="`${formName}.emails.${index}`"></lq-text>
+	  	<lq-text v-for="(item, index) in getElement('0.emails', '')"  :form-name="formName" :name="`0.emails.${index}`" :key="`${formName}.0.emails.${index}`"></lq-text>
 
 	  	{{formValues}}
 	</div>

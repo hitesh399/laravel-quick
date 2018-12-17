@@ -60,7 +60,7 @@ export default  {
 		
 		if (!obj[prop]) {
 
-			Vue.set(obj, prop, (props.length == 1   && isNaN(parseInt(props[0])) === false ? [] : {}) )
+			Vue.set(obj, prop, (props.length >= 1   && isNaN(parseInt(props[0])) === false ? [] : {}) )
 		}
 		if (!props.length) {
 
@@ -96,7 +96,8 @@ export default  {
 		const prop = props.shift()
 
 		if (!obj[prop]) {
-			Vue.set(obj, prop, {})
+			
+			Vue.set(obj, prop, (props.length >= 1   && isNaN(parseInt(props[0])) === false ? [] : {}) )
 		}
 		if (!props.length) {
 
@@ -164,7 +165,7 @@ export default  {
 		
 		if (!obj[prop]) {
 
-			Vue.set(obj, prop, !props.length ? [] : {})
+			Vue.set(obj, prop, (props.length >= 1   && isNaN(parseInt(props[0])) === false ? [] : {}) )
 		}
 		if (!props.length) {
 
