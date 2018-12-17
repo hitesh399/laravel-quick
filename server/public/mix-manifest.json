@@ -1,4 +1,13 @@
 {
-    "/assets/js/app.js": "http://localhost/lq/client/assets/js/app.js",
-    "/assets/css/app.css": "http://localhost/lq/client/assets/css/app.css"
+  "about.js": "http://localhost/lq/client/dist/js/about.53be87c4.js",
+  "about.js.map": "http://localhost/lq/client/dist/js/about.53be87c4.js.map",
+  "app.css": "http://localhost/lq/client/dist/css/app.f39f8732.css",
+  "app.js": "http://localhost/lq/client/dist/js/app.ecb89857.js",
+  "app.css.map": "http://localhost/lq/client/dist/css/app.f39f8732.css.map",
+  "app.js.map": "http://localhost/lq/client/dist/js/app.ecb89857.js.map",
+  "chunk-vendors.js": "http://localhost/lq/client/dist/js/chunk-vendors.3877369c.js",
+  "chunk-vendors.js.map": "http://localhost/lq/client/dist/js/chunk-vendors.3877369c.js.map",
+  "favicon.ico": "http://localhost/lq/client/dist/favicon.ico",
+  "img/logo.png": "http://localhost/lq/client/dist/img/logo.82b9c7a5.png",
+  "index.html": "http://localhost/lq/client/dist/index.html"
 }
