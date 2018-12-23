@@ -16,10 +16,10 @@ export default  {
 
 		const prop = props.shift()
 		if (obj[prop] === undefined || !props.length) {
-
+			
 			return obj[prop] === undefined  ? defaultValue: obj[prop]; 
 		}
-		return this.getProp(obj[prop], props)
+		return this.getProp(obj[prop], props, defaultValue)
 	},
 	/*
 	 |------------------------------------------------
@@ -38,8 +38,12 @@ export default  {
 		if (!obj[prop]) {
 			return
 		}
+		if(props.length === 1   && this.isInteger(props[0]) ){
 
-		if (!props.length) {
+			obj[prop].splice(parseInt(props[0]), 1);
+			return;
+		}
+		else if (!props.length) {
 			Vue.delete(obj, prop)
 			return
 		}
@@ -53,18 +57,20 @@ export default  {
 	 * @param props => String, Array, [Object key path],
 	 * @param value => Any, [key value]
 	 */
-	setProp: function (obj, props, value) {
+	setProp: function (obj, props, value, replace) {
 		
 		props = typeof props === "string" ? props.split('.') : props;
+		replace = replace === undefined ? false : replace;
+
 		const prop = props.shift()
 		
 		if (!obj[prop]) {
 
-			Vue.set(obj, prop, (props.length >= 1   && isNaN(parseInt(props[0])) === false ? [] : {}) )
+			Vue.set(obj, prop, (props.length >= 1   && this.isInteger(props[0]) ? [] : {}) )
 		}
 		if (!props.length) {
 
-			if ( this.isObject(value) ) {
+			if ( this.isObject(value) && replace === false) {
 
 			  var preValue = obj[prop] ? obj[prop]: {};
 			  Vue.set(obj, prop, {...preValue, ...value} );
@@ -76,7 +82,7 @@ export default  {
 
 			return
 		}
-		this.setProp(obj[prop], props, value)
+		this.setProp(obj[prop], props, value, replace)
 	},
 	/*
 	 |----------------------------------------------
@@ -97,7 +103,7 @@ export default  {
 
 		if (!obj[prop]) {
 			
-			Vue.set(obj, prop, (props.length >= 1   && isNaN(parseInt(props[0])) === false ? [] : {}) )
+			Vue.set(obj, prop, (props.length >= 1  && this.isInteger(props[0]) ? [] : {}) )
 		}
 		if (!props.length) {
 
@@ -108,8 +114,6 @@ export default  {
 				// Storeing the items which were present before updating..
 				let first_items = Object.assign([], items);
 				let max_length = first_items.length;
-
-				
 
 				value.map(function(v, index) {
 
@@ -165,7 +169,7 @@ export default  {
 		
 		if (!obj[prop]) {
 
-			Vue.set(obj, prop, (props.length >= 1   && isNaN(parseInt(props[0])) === false ? [] : {}) )
+			Vue.set(obj, prop, (props.length >= 1   && this.isInteger(props[0]) ? [] : {}) )
 		}
 		if (!props.length) {
 
@@ -175,11 +179,8 @@ export default  {
 
 				// Storeing the items which were present before updating..
 				let first_items = Object.assign([], items);
-
 				let max_length = items.length;
 
-				
-				
 				value.map(function(v, index) {
 
 					let isAlreadyPresent = null;
@@ -229,7 +230,17 @@ export default  {
 	isObject: function (value) {
 	  return value && typeof value === 'object' && value.constructor === Object;
 	},
+	/*
+	 |------------------
+	 | To check the given string contains only number or not
+	 |-----------------------------------------
+	 * @param value => String
+	 */
+	isInteger: function (value) {
 
+		let regex = new RegExp(/^[0-9]+$/);
+		return regex.test(value);
+	},
 	/**
 	* Covert Query string to Object
 	*/
@@ -267,5 +278,58 @@ export default  {
 		  }
 		}
 		return str.join("&");
+	},
+
+	/**
+	 * This function mostly use to rearrange the  object's index base on the delete element
+	 * @param obj => Object
+	 * @param elementName => element name which is going to delete.
+	 */
+	reArrangeObjectIndex: function(obj, elementName) {
+
+		let errors = {...obj};
+
+		const errorKeys = Object.keys(errors);
+		let hasChangedInError = false;
+
+		let elementArr = elementName.split('.');
+		let elementLastIndex = elementArr[elementArr.length -1];
+		let isLastIndexInteger = this.isInteger(elementLastIndex);
+		let lastIndex = isLastIndexInteger ? parseInt(elementLastIndex) : null;
+		let elementPath = elementArr.slice(0, -1).join('.');
+		const regex = new RegExp("(?<="+elementPath+".)[0-9]+(?=.|$)");
+		
+
+		errorKeys.map(function (item) { 
+			
+			// If the Parent Element's error is deleting then deleting all the child element errors also.
+			// If the element contains the number in end of name then search the child element index and process to deleting.
+			 if(item.indexOf(elementName) === 0) {
+			 	delete errors[item];
+			 	hasChangedInError = true;
+			 }
+			 
+			 //if deleting the Array element's Error then reArrange the errors indexing..
+			 let elementNextIndex = regex.exec(item);
+
+			 if (lastIndex !== null && elementNextIndex) {
+
+			 	elementNextIndex = parseInt(elementNextIndex[0]);
+
+			 	if(elementNextIndex > lastIndex) {
+				 	
+				 	const newIndex = elementNextIndex-1;
+				 	const oldIndexVal = errors[item];
+				 	const newItemIndex = item.replace(regex, newIndex);
+
+				 	delete errors[item];
+				 	errors[newItemIndex] = oldIndexVal;
+				 	hasChangedInError = true;
+				 }
+			 	
+			 }
+		});
+
+		return hasChangedInError ? errors: null;
 	}
 }

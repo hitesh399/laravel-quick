@@ -43,7 +43,10 @@ const formMixin = {
 			return helper.getProp(this.$store.state.form,`${this.formName}.values`, {});
 		},
 		formInitialvalues: function () {},
-		formErrors: function () {}
+		formErrors: function () {
+
+			return helper.getProp(this.$store.state.form,`${this.formName}.errors`, {});
+		}
 	},
 
 	methods: {
@@ -59,8 +62,11 @@ const formMixin = {
 		 * name value should be like: `name.1`
 		 */
 		 getElement: function (elementName, defaultValue) {
-		 	console.log('getElement');
-		 	console.log(this.formValues)
+		 	//console.log('');
+		 	console.log('getElement23', elementName);
+		 	console.log('defaultValue', defaultValue);
+		 	console.log('return value', helper.getProp(this.formValues, elementName , [defaultValue]));
+
 		 	return helper.getProp(this.formValues, elementName , [defaultValue]);
 		 },
 		 
@@ -101,7 +107,19 @@ const formMixin = {
 		 * element is name: [1,2,3,4] and you want to delete the second element than
 		 * name value should be like: `name.1`
 		 */
-		remove: function () {},
+		remove: function (elementName) {
+			
+			this.$store.dispatch('form/removeElement', {formName: this.formName, elementName: elementName});
+		},
+
+		addErrors: function (errors) {
+
+			this.$store.dispatch('form/addErrors', {formName: this.formName, errors: errors});
+		},
+		addError: function (elementName, errors) {
+
+			this.$store.dispatch('form/addError', {formName: this.formName, elementName: elementName, errors: errors});
+		},
 		/*
 		 |-----------------------------------
 		 | To get the element error
@@ -111,13 +129,17 @@ const formMixin = {
 		 * element is name: [1,2,3,4] and you want to delete the second element than
 		 * name value should be like: `name.1`
 		 */
-		getError: function () {},
+		getErrors: function (elementName) {
+
+			return elementName ? this.formErrors.elementName : this.formErrors;
+		},
 		/*
 		 |---------------------------------------------------------------------------
 		 | To Error of the given element
 		 |---------------------------------------------------------------------------
 		 * @param elementName => String
 		 */
+		 removeErrors: function() {},
 		 removeError: function() {},
 
 		/*
