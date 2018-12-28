@@ -29,7 +29,7 @@
 							<table>
 								<tr v-for="(address, address_index) in getElement(`addresses`, {})">
 									<td>
-										<lq-text :id="`addresses.${address_index}.line1`" class="form-control" placeholder="Line 1" />
+										<lq-text :id="`addresses.${address_index}.line1`" class="form-control" placeholder="Line 1" :rules="rules.line1"/>
 									</td>
 									<td>
 										<lq-text :id="`addresses.${address_index}.line2`" class="form-control" placeholder="Line 2" />
@@ -49,6 +49,7 @@
 						</td>
 					</tr>
 				 </table>
+				 <button @click="submit">Submit</button>
 	 		</td>
 
 	 		<td>

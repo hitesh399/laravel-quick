@@ -1,5 +1,5 @@
 import helper from 'vuejs-object-helper';
-var validate = require("validate.js");
+const validate = require("validate.js");
 
 const formElementMix = {
 
@@ -38,33 +38,7 @@ const formElementMix = {
 					this.validate()
 				}
 			}
-		},
-
-		inputListeners: function (event) {
-
-			console.log('sadsdss');
-			console.log(event)
-
-	      var vm = this;
-
-	      return this.$listeners;
-	    
-	      // `Object.assign` merges objects together to form a new object
-	      // return Object.assign({},
-	      //   // We add all the listeners from the parent
-	      //   this.$listeners,
-	      //   // Then we can add custom listeners or override the
-	      //   // behavior of some listeners.
-	      //   {
-	      //     // This ensures that the component works with v-model
-	      //     input: function (val) {
-	      //     	console.log('asdasdsdds');
-	      //     	console.log(event)
-	      //       vm.$emit('input', val)
-	      //     }
-	      //   }
-	      // )
-	    }
+		}
 	},
 	data: function () {
 
@@ -77,9 +51,12 @@ const formElementMix = {
 	created () {
 
 		this.formName = this.$parent.formName;
+		
 		if(this.getValue(null) == null)
 			this.setValue(null);
-	
+
+		if(this.rules)
+			this.$store.dispatch('form/addValidation', {formName: this.formName, elementName: this.id, rules: this.rules})
 	},
 
 	methods: {
@@ -92,7 +69,6 @@ const formElementMix = {
 		},
 		setValue: function (value) {
 
-			
 			this.$store.dispatch('form/setElementValue', {formName: this.formName, elementName: this.id, value: value})
 		},
 		makeElementName: function () {
@@ -113,15 +89,11 @@ const formElementMix = {
 				return;
 			}
 
-			let value = this.getValue();
-			let test = validate.single(value, this.rules);
+			const value = this.getValue();
+			const test = validate.single(value, this.rules);
 
-			if(test !== undefined) {
-				this.addError(test);
-			}
-			else {
-				this.removeError();
-			}
+			test !== undefined ? this.addError(test) : this.removeError()
+			
 		},
 
 		emitNativeEvent(event) {

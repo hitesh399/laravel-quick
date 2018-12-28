@@ -7,5 +7,10 @@ export default {
 			presence: {
 				allowEmpty: false
 			}
+	},
+	line1: {
+			presence: {
+				allowEmpty: false
+			}
 	}
 }

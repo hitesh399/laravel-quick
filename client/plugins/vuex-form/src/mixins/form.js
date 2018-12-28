@@ -1,4 +1,5 @@
 import helper from 'vuejs-object-helper';
+const validate = require("validate.js");
 
 const formMixin = {
 
@@ -142,13 +143,35 @@ const formMixin = {
 		 removeErrors: function() {},
 		 removeError: function() {},
 
-		/*
-		 |---------------------------------------------------------------------------
-		 | To Re-arrange errors index after delete an element which dataType is array
-		 |---------------------------------------------------------------------------
-		 * @param elementName => String
-		 */
-		 reArrangeErrorsIndex: function () {},
+		 submit: function () {
+
+		 	const rules = {...this.$store.getters['form/validations'](this.formName)};
+		 	const values = {...this.$store.getters['form/values'](this.formName)};
+		 	const elementNames = Object.keys(rules);
+
+		 	elementNames.map((elementName) => {
+
+		 		const elementValue = 	helper.getProp(values, elementName, null);
+		 		const test = validate.single(elementValue, rules[elementName]);
+		 	
+		 		if(test) {
+
+		 			this.$store.dispatch('form/addError', {
+		 				formName: this.formName, 
+		 				elementName: elementName, 
+		 				errors: test
+		 			});
+		 		}
+		 		else {
+
+		 			this.$store.dispatch('form/removeError', {
+		 				formName: this.formName, 
+		 				elementName: elementName
+		 			});
+		 		}
+		 	})
+		 	
+		 }
 	}
 }
 
