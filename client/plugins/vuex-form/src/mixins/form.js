@@ -160,6 +160,7 @@ const formMixin = {
 			const values = {...this.$store.getters['form/values'](this.formName)};
 			const elementNames = Object.keys(rules);
 			let validations = [];
+
 			this.isReady(false);
 
 			elementNames.map((elementName) => {
@@ -187,13 +188,6 @@ const formMixin = {
 							this.addError(elementName, err)
 						})
 				}
-				else {
-					
-					validations[validations.length] = new Promise(function (reslove) {
-						reslove();
-					})
-				}
-				
 				
 			})
 
@@ -210,12 +204,16 @@ const formMixin = {
 
 			 		this.isSubmiting(false);
 			 		console.log('Has Error..');
+			 		this.$emit('errors')
 			 	}
 			 	else {
 
 			 		setTimeout( () => {
 				 		console.log('isSubmiting Done.')
+				 		
 				 		this.isSubmiting(false);
+				 		this.$emit('submited');
+
 				 	}, 5000);
 			 	}
 

@@ -99,7 +99,7 @@ const formElementMix = {
 			delete rules.serverValidation
 
 			const test = validate.single(value, rules);
-			console.log('Test...', test);
+			//console.log('Test...', test);
 
 			if(test === undefined && serverValidation) {
 
