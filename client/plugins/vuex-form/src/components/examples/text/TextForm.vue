@@ -17,7 +17,7 @@
 
 					<tr>
 						<td>User Name</td>
-						<td><lq-text id="username" class="form-control" /></td>
+						<td><lq-text id="username" :rules="rules.username" validate-event="blur" class="form-control" /></td>
 					</tr>
 
 					<tr>
@@ -89,11 +89,6 @@
 			}
 		},
 		methods: {
-
-			addError: function () {
-
-				this.addErrors({'educations.0.name': 'Required'});
-			},
 			test : function (w, value) {
 				console.log('W', w);
 				alert('ok.dd..'+ value)

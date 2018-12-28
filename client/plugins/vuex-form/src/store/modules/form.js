@@ -13,6 +13,9 @@ const getters = {
 	},
 	values: (state) => (formName) => {
 		return state[formName] && state[formName].values ? state[formName].values : {};
+	},
+	infos: (state) => (formName) => {
+		return state[formName] && state[formName].infos ? state[formName].infos : {};
 	}
 }
 
@@ -34,34 +37,72 @@ const actions = {
  
 		commit('deleteElement', {formName, elementName});
 	},
+
+
+	/**
+	 * Errors Functions
+	 */
+
 	addErrors({commit}, {formName, errors}) {
 
-		commit('saveErrors', { formName, errors});
+		commit('saveDataKey', { formName, data: errors, dataKey: 'errors'});
 	},
 	addError({commit}, {formName, elementName, errors}) {
 
-		commit('updateError', { formName, elementName, errors});
+		commit('updateDataKey', { formName, elementName, data: errors, dataKey: 'errors'});
 	},
 	removeErrors({commit}, {formName}) {
 
-		commit('deleteErrors', { formName});
+		commit('destroyDataKey', { formName, dataKey: 'errors'});
 	},
 	removeError({commit}, {formName, elementName}) {
 
-		commit('deleteError', { formName, elementName});
+		commit('deleteDataKey', { formName, elementName, dataKey: 'errors'});
 	},
+
+
+	/**
+	 * Validation functions
+	 */
 	addValidation({commit}, {formName, elementName, rules}) {
 
-		commit('updateValidation', { formName, elementName, rules});
+		commit('updateDataKey', { formName, elementName, data: rules, dataKey: 'validations'});
 	},
 	addValidations({commit}, {formName, rules}) {
 		
-		commit('saveValidations', { formName, rules});
+		commit('saveDataKey', { formName, data: rules, dataKey: 'validations'});
 	},
 	removeValidation({commit}, {formName, elementName}) {
 
-		commit('deleteValidation', { formName, elementName});
+		commit('deleteDataKey', { formName, elementName, dataKey: 'validations'});
+	},
+
+	/**
+	 * Element Information functions
+	 */
+	addInfo({commit}, {formName, elementName, info}) {
+
+		commit('updateDataKey', { formName, elementName, data: info, dataKey: 'info'});
+	},
+	addInfos({commit}, {formName, info}) {
+		
+		commit('saveDataKey', { formName, data: info, dataKey: 'info'});
+	},
+	removeInfo({commit}, {formName, elementName}) {
+
+		commit('deleteDataKey', { formName, elementName, dataKey: 'info'});
+	},
+
+
+	isReady({commit}, {formName, status}) {
+
+		commit('changeStatus', {formName, statusKey: 'isReady', status})
+	},
+	isSubmiting({commit}, {formName, status}) {
+		
+		commit('changeStatus', {formName, statusKey: 'isSubmiting', status})
 	}
+
 }
 
 const mutations = {
@@ -78,32 +119,28 @@ const mutations = {
 
 		helper.unshiftProp(state, `${formName}.values.${elementName}`, value)
 	},
-	updateValidation(state, {formName, elementName, rules}) {
-		helper.setProp(state, [formName, 'validations', elementName], rules, true); 
-	},
-	saveValidations(state, {formName, rules}) {
 
-		helper.setProp(state, [formName, 'validations' ], rules, true);
-	},
-	deleteValidation(state, {formName, elementName}) {
+	updateDataKey(state, {formName, elementName, data, dataKey}){
 
-		helper.deleteProp(state, [formName, 'validations', elementName]); 
+		helper.setProp(state, [formName, dataKey, elementName], data, true); 
 	},
-	saveErrors(state, {formName, errors}) {
-		//console.log('saveErrors', errors);
-		helper.setProp(state, [formName, 'errors' ], errors, true);
-	},
-	updateError(state, {formName, elementName, errors}) {
+	saveDataKey(state, {formName, data, dataKey}){
 
-		helper.setProp(state, [formName, 'errors', elementName], errors, true); 
+		helper.setProp(state, [formName, dataKey ], data, true);
 	},
-	deleteErrors(state, {formName}) {
+	deleteDataKey(state, {formName, elementName, dataKey}) {
 
-		helper.deleteProp(state, [formName, 'errors' ]);
+		helper.deleteProp(state, [formName, dataKey, elementName]); 
 	},
-	deleteError(state, {formName, elementName}) {
+	destroyDataKey(state, {formName, dataKey}) {
 
-		helper.deleteProp(state, [formName, 'errors', elementName]); 
+		helper.deleteProp(state, [formName, dataKey ]);
+	},
+
+
+	changeStatus(state, {formName, statusKey, status}){
+
+		helper.setProp(state, [formName, statusKey ], status, true);	
 	},
 	deleteElement(state, {formName, elementName}) {
 
@@ -126,6 +163,17 @@ const mutations = {
 
 		if(updatedValidations){
 			this.dispatch('form/addValidations', { formName, rules: updatedValidations});
+		}
+
+		// Removing Infomation
+		this.dispatch('form/removeValidation', { formName, elementName});
+
+		// Rearrange the Errors Information index
+		let infos = {...this.getters['form/removeInfos'](formName) };
+		let updatedInfos = helper.reArrangeObjectIndex(infos, elementName);
+
+		if(updatedInfos){
+			this.dispatch('form/addInfos', { formName, rules: updatedInfos});
 		}
 
 		// Deleting the element

@@ -1,16 +1,40 @@
 export default {
 
 	email: {
-		email: true
+		email: true,
+		presence: {
+			allowEmpty: false
+		}
 	},
 	name: {
-			presence: {
-				allowEmpty: false
-			}
+		presence: {
+			allowEmpty: false
+		}
 	},
 	line1: {
-			presence: {
-				allowEmpty: false
-			}
-	}
+		presence: {
+			allowEmpty: false
+		}
+	},
+	username: {
+
+		presence: {
+			allowEmpty: false
+		},
+		serverValidation : function (value) {
+
+			return new Promise(function (resolve, reject) {
+
+				setTimeout(function () {
+					if(value.value ==='test') {
+
+						resolve();
+					}
+					else {
+						resolve(['Username should be unique.'])
+					}
+				}, 2000);
+			})
+		}
+	} 
 }

@@ -9,7 +9,7 @@ const formElementMix = {
 			type: String,
 			required: true
 		},
-		rules : Object,
+		rules : [Object, Function],
 		validateEvent: {
 			type: String,
 			validator: (val) => ['blur', 'change', 'keypress', 'keyup'].includes(val),
@@ -83,6 +83,10 @@ const formElementMix = {
 			
 			this.$store.dispatch('form/removeError', {formName: this.formName, elementName: this.id});
 		},
+		isReady: function (status) {
+			
+			this.$store.dispatch('form/isReady', {formName: this.formName, status});
+		},
 		validate: function () {
 
 			if(!this.rules) {
@@ -90,9 +94,33 @@ const formElementMix = {
 			}
 
 			const value = this.getValue();
-			const test = validate.single(value, this.rules);
+			let rules  = {...this.rules};
+			const {serverValidation} = rules;
+			delete rules.serverValidation
 
-			test !== undefined ? this.addError(test) : this.removeError()
+			const test = validate.single(value, rules);
+			console.log('Test...', test);
+
+			if(test === undefined && serverValidation) {
+
+				const values = {...this.$store.getters['form/values'](this.formName)};
+				this.isReady(false);
+
+				serverValidation({formData: values, value: value})
+					.then((res) => {
+						this.isReady(true);
+						console.log('Res', res);
+						res ? this.addError(res) : this.removeError();
+
+					}).catch((err) => {
+						this.isReady(true);
+						this.addError(err)
+					})
+			}
+			else {
+				test !== undefined ? this.addError(test) : this.removeError()
+			}					
+			
 			
 		},
 

@@ -28,6 +28,12 @@ const formMixin = {
 	mounted: function () {
 
 	},
+
+	created: function () {
+
+		this.isReady(true);
+		this.isSubmiting(false);
+	},
 	/*
 	 |--------------------------------------------------------------------------------
 	 | Check if Keep alive is false then delete the all form value and assign the null.
@@ -63,11 +69,7 @@ const formMixin = {
 		 * name value should be like: `name.1`
 		 */
 		 getElement: function (elementName, defaultValue) {
-		 	//console.log('');
-		 	console.log('getElement23', elementName);
-		 	console.log('defaultValue', defaultValue);
-		 	console.log('return value', helper.getProp(this.formValues, elementName , [defaultValue]));
-
+		 	
 		 	return helper.getProp(this.formValues, elementName , [defaultValue]);
 		 },
 		 
@@ -113,14 +115,7 @@ const formMixin = {
 			this.$store.dispatch('form/removeElement', {formName: this.formName, elementName: elementName});
 		},
 
-		addErrors: function (errors) {
-
-			this.$store.dispatch('form/addErrors', {formName: this.formName, errors: errors});
-		},
-		addError: function (elementName, errors) {
-
-			this.$store.dispatch('form/addError', {formName: this.formName, elementName: elementName, errors: errors});
-		},
+		
 		/*
 		 |-----------------------------------
 		 | To get the element error
@@ -134,44 +129,100 @@ const formMixin = {
 
 			return elementName ? this.formErrors.elementName : this.formErrors;
 		},
-		/*
-		 |---------------------------------------------------------------------------
-		 | To Error of the given element
-		 |---------------------------------------------------------------------------
-		 * @param elementName => String
-		 */
-		 removeErrors: function() {},
-		 removeError: function() {},
+		addErrors: function (errors) {
 
-		 submit: function () {
+			this.$store.dispatch('form/addErrors', {formName: this.formName, errors});
+		},
+		addError: function (elementName, errors) {
 
-		 	const rules = {...this.$store.getters['form/validations'](this.formName)};
-		 	const values = {...this.$store.getters['form/values'](this.formName)};
-		 	const elementNames = Object.keys(rules);
+			this.$store.dispatch('form/addError', {formName: this.formName, elementName, errors});
+		},
+		removeError: function (elementName) {
+			
+			this.$store.dispatch('form/removeError', {formName: this.formName, elementName: elementName});
+		},
+		isReady: function (status) {
+			
+			this.$store.dispatch('form/isReady', {formName: this.formName, status});
+		},
+		isSubmiting: function (status) {
+			
+			this.$store.dispatch('form/isSubmiting', {formName: this.formName, status});
+		},
+		hasError: function () {
+			console.log('hasError', Object.keys(this.getErrors()).length )
+			return Object.keys(this.getErrors()).length > 0;
+		},
 
-		 	elementNames.map((elementName) => {
+		submit: function () {
 
-		 		const elementValue = 	helper.getProp(values, elementName, null);
-		 		const test = validate.single(elementValue, rules[elementName]);
-		 	
-		 		if(test) {
+			const rules = {...this.$store.getters['form/validations'](this.formName)};
+			const values = {...this.$store.getters['form/values'](this.formName)};
+			const elementNames = Object.keys(rules);
+			let validations = [];
+			this.isReady(false);
 
-		 			this.$store.dispatch('form/addError', {
-		 				formName: this.formName, 
-		 				elementName: elementName, 
-		 				errors: test
-		 			});
-		 		}
-		 		else {
+			elementNames.map((elementName) => {
 
-		 			this.$store.dispatch('form/removeError', {
-		 				formName: this.formName, 
-		 				elementName: elementName
-		 			});
-		 		}
-		 	})
-		 	
-		 }
+				const elementValue = 	helper.getProp(values, elementName, null);
+		
+				const rule = {...rules[elementName]};
+
+				const { serverValidation } = rule;
+				delete rule.serverValidation
+					
+				const test = validate.single(elementValue, rule);
+				test ? this.addError(elementName, test) : this.removeError(elementName);
+				
+				//console.log(elementName, test, rule)
+				if(test === undefined && serverValidation) {
+
+					validations[validations.length] = serverValidation({formData: values, value: elementValue})
+						.then((res) => {
+							
+							res ? this.addError(elementName, res) : this.removeError(elementName);
+
+						}).catch((err) => {
+
+							this.addError(elementName, err)
+						})
+				}
+				else {
+					
+					validations[validations.length] = new Promise(function (reslove) {
+						reslove();
+					})
+				}
+				
+				
+			})
+
+			console.log('Waiting...');
+
+			Promise.all(validations)
+			 .then(() => {
+			 	this.isReady(true);
+			 	console.log('is ok..');
+			 	this.isSubmiting(true);
+			 	console.log('isSubmiting')
+
+			 	if(this.hasError()) {
+
+			 		this.isSubmiting(false);
+			 		console.log('Has Error..');
+			 	}
+			 	else {
+
+			 		setTimeout( () => {
+				 		console.log('isSubmiting Done.')
+				 		this.isSubmiting(false);
+				 	}, 5000);
+			 	}
+
+			 })
+			 .catch()
+
+		}
 	}
 }
 
