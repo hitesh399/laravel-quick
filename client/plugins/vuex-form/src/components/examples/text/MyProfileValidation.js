@@ -31,6 +31,7 @@ export default {
 						resolve();
 					}
 					else {
+						console.log('InputValue: ', value.value);
 						resolve(['Username should be unique.'])
 					}
 				}, 2000);

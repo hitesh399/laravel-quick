@@ -27,7 +27,8 @@
 		methods: {
 			test : function () {
 
-				alert('ok...')
+				alert('ok...');
+				
 			}
 		}
 	}

@@ -17,7 +17,7 @@
 
 					<tr>
 						<td>User Name</td>
-						<td><lq-text id="username" :rules="rules.username" validate-event="blur" class="form-control" /></td>
+						<td><lq-text id="username" :rules="rules.username" validate-event="keyup" class="form-control" /></td>
 					</tr>
 
 					<tr>
@@ -27,7 +27,7 @@
 					<tr>
 						<td colspan="2">
 							<table>
-								<tr v-for="(address, address_index) in getElement(`addresses`, {})">
+								<tr v-for="(address, address_index) in getElement(`addresses`, {})" :key="`address_row${address_index}`">
 									<td>
 										<lq-text :id="`addresses.${address_index}.line1`" class="form-control" placeholder="Line 1" :rules="rules.line1"/>
 									</td>

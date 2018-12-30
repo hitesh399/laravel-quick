@@ -17,6 +17,11 @@ const formMixin = {
 			default: function () { return {}; }
 		}
 	},
+	data: function(){
+		return{
+			autoSubmit: true
+		}
+	},
 	/*
 	 |-------------------------------------------------------
 	 | Check that is the form  already have the values ?
@@ -154,7 +159,7 @@ const formMixin = {
 			return Object.keys(this.getErrors()).length > 0;
 		},
 
-		submit: function () {
+		submit: async function () {
 
 			const rules = {...this.$store.getters['form/validations'](this.formName)};
 			const values = {...this.$store.getters['form/values'](this.formName)};
@@ -178,48 +183,47 @@ const formMixin = {
 				//console.log(elementName, test, rule)
 				if(test === undefined && serverValidation) {
 
-					validations[validations.length] = serverValidation({formData: values, value: elementValue})
-						.then((res) => {
-							
-							res ? this.addError(elementName, res) : this.removeError(elementName);
+					validations[validations.length] = serverValidation({
+						formData: values, 
+						value: elementValue, 
+						name: elementName
+					}).then((res) => {
 
-						}).catch((err) => {
+						res ? this.addError(elementName, res) : this.removeError(elementName);
 
-							this.addError(elementName, err)
-						})
+					}).catch((err) => {
+
+						this.addError(elementName, err)
+					})
 				}
 				
 			})
 
 			console.log('Waiting...');
 
-			Promise.all(validations)
-			 .then(() => {
-			 	this.isReady(true);
-			 	console.log('is ok..');
-			 	this.isSubmiting(true);
-			 	console.log('isSubmiting')
+			await Promise.all(validations);
+			this.isReady(true);
+			console.log('is ok..');
+			
+			console.log('isSubmiting')
 
-			 	if(this.hasError()) {
+			if(this.hasError()) {
 
-			 		this.isSubmiting(false);
-			 		console.log('Has Error..');
-			 		this.$emit('errors')
-			 	}
-			 	else {
+				//this.isSubmiting(false);
+				console.log('Has Error..');
+				this.$emit('errors')
+			}
+			else {
 
-			 		setTimeout( () => {
-				 		console.log('isSubmiting Done.')
-				 		
-				 		this.isSubmiting(false);
-				 		this.$emit('submited');
+				this.isSubmiting(true);
+				setTimeout( () => {
+					console.log('isSubmiting Done.')
+					
+					this.isSubmiting(false);
+					this.$emit('submited');
 
-				 	}, 5000);
-			 	}
-
-			 })
-			 .catch()
-
+				}, 5000);
+			}
 		}
 	}
 }

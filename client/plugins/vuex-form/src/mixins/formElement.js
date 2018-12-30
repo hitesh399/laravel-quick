@@ -12,7 +12,7 @@ const formElementMix = {
 		rules : [Object, Function],
 		validateEvent: {
 			type: String,
-			validator: (val) => ['blur', 'change', 'keypress', 'keyup'].includes(val),
+			validator: (val) => ['blur', 'change', 'keypress', 'keyup','keydown','click'].includes(val),
 			default: function () {
 				return 'change';
 			}
@@ -44,7 +44,9 @@ const formElementMix = {
 
 		return {
 			name: null,
-			formName: null
+			formName: null,
+			validationCallback: null,
+			validating: false,
 		}
 	},
 
@@ -76,7 +78,7 @@ const formElementMix = {
 			return this.id.split('.').map(function(item, index)  { return index >0 ? '['+item+']': item  }).join('');
 		},
 		addError: function (errors) {
-
+			errors = !helper.isArray(errors) ? [errors] : errors;
 			this.$store.dispatch('form/addError', {formName: this.formName, elementName: this.id, errors: errors});
 		},
 		removeError: function () {
@@ -92,6 +94,12 @@ const formElementMix = {
 			if(!this.rules) {
 				return;
 			}
+			if(this.validating){
+				if(this.validationCallback === null) {
+					this.validationCallback = this.validate;
+				}
+				return;
+			}
 
 			const value = this.getValue();
 			let rules  = {...this.rules};
@@ -105,16 +113,25 @@ const formElementMix = {
 
 				const values = {...this.$store.getters['form/values'](this.formName)};
 				this.isReady(false);
-
-				serverValidation({formData: values, value: value})
+				this.$emit('validating');
+				this.validating = true;
+				console.log('Start validating...')
+				serverValidation({formData: values, value: value,  name: this.id})
 					.then((res) => {
 						this.isReady(true);
-						console.log('Res', res);
+						//console.log('Res', res);
 						res ? this.addError(res) : this.removeError();
+						this.$emit('validated', res);
+						this.validating = false;
+						this.validationCallback();
+						this.validationCallback = null;
 
 					}).catch((err) => {
 						this.isReady(true);
 						this.addError(err)
+						this.$emit('validated', err);
+						this.validating = false;
+						this.validationCallback = null;
 					})
 			}
 			else {
