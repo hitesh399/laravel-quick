@@ -333,3 +333,63 @@ export default  {
 		return hasChangedInError ? errors: null;
 	}
 }
+
+/**
+ * To the check the select file is an image.
+ * @param {String} dataURL 
+ */
+export function isImage  (dataURL) {
+
+	const mimeType = dataURL.split(",")[0].split(":")[1].split(";")[0];
+	return mimeType.match('image.*');
+}
+
+/**
+ * To verify the file Extensions 
+ * @param {Array} acceptedFiles 
+ * @param {File Instance} file 
+ */
+export function checkFileExtensions(acceptedFiles, file) {
+
+	const fileName = file.name;
+	const fileType =  file.type
+	let is_valid = false;
+	acceptedFiles.map(function (file_type) {
+		
+		if(file_type.startsWith('.')) {
+
+			var ext = getFilePathExtension(fileName);
+			var patt = new RegExp(file_type.replace('.',''),'gmi');
+			
+			if ( patt.test(ext) === true) {
+
+				is_valid = true;
+			}
+		} 
+		else  {
+
+			let match_with = file_type;
+			let patt = '';
+
+			if(file_type.endsWith('*')) {
+				
+				match_with.slice(0, -1);
+				patt = new RegExp('^'+match_with, 'gmi');
+
+			} 
+			else {
+
+				patt = new RegExp(match_with, 'gmi');
+			}
+
+
+			if ( patt.test(fileType) === true) {
+
+				is_valid = true;
+			}
+			
+		}
+	})
+
+	return is_valid;
+}
