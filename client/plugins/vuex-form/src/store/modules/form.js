@@ -169,7 +169,7 @@ const mutations = {
 		this.dispatch('form/removeValidation', { formName, elementName});
 
 		// Rearrange the Errors Information index
-		let infos = {...this.getters['form/removeInfos'](formName) };
+		let infos = {...this.getters['form/infos'](formName) };
 		let updatedInfos = helper.reArrangeObjectIndex(infos, elementName);
 
 		if(updatedInfos){
