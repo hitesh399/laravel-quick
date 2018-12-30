@@ -24,7 +24,7 @@ export default {
 		serverValidation : function (value) {
 
 			return new Promise(function (resolve, reject) {
-
+				
 				setTimeout(function () {
 					if(value.value ==='test') {
 

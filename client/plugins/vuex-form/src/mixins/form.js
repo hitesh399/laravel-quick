@@ -235,6 +235,7 @@ const formMixin = {
 			else {
 
 				this.submiting(true);
+				
 				setTimeout( () => {
 					console.log('isSubmiting Done.')
 					

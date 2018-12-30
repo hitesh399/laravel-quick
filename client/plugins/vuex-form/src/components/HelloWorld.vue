@@ -2,7 +2,7 @@
   <div class="hello">
     <h1>{{ msg }}</h1>
 
-   <text-form form-name="textform"></text-form>
+   <text-form form-name="textform" ></text-form>
   </div>
 </template>
 
