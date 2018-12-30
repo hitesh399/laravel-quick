@@ -19,7 +19,10 @@ const formMixin = {
 	},
 	data: function(){
 		return{
-			autoSubmit: true
+			autoSubmit: true,
+			method: 'POST',
+			dataType: 'Json', // formData
+			endPoint: '/', // URL to Submit the Form Data
 		}
 	},
 	/*
@@ -36,8 +39,8 @@ const formMixin = {
 
 	created: function () {
 
-		this.isReady(true);
-		this.isSubmiting(false);
+		this.ready(true);
+		this.submiting(false);
 	},
 	/*
 	 |--------------------------------------------------------------------------------
@@ -58,6 +61,14 @@ const formMixin = {
 		formErrors: function () {
 
 			return helper.getProp(this.$store.state.form,`${this.formName}.errors`, {});
+		},
+		isReady: function () {
+
+			return helper.getProp(this.$store.state.form,`${this.formName}.isReady`, true);
+		},
+		isSubmiting: function () {
+
+			return helper.getProp(this.$store.state.form,`${this.formName}.isSubmiting`, false);
 		}
 	},
 
@@ -146,11 +157,11 @@ const formMixin = {
 			
 			this.$store.dispatch('form/removeError', {formName: this.formName, elementName: elementName});
 		},
-		isReady: function (status) {
+		ready: function (status) {
 			
 			this.$store.dispatch('form/isReady', {formName: this.formName, status});
 		},
-		isSubmiting: function (status) {
+		submiting: function (status) {
 			
 			this.$store.dispatch('form/isSubmiting', {formName: this.formName, status});
 		},
@@ -159,14 +170,14 @@ const formMixin = {
 			return Object.keys(this.getErrors()).length > 0;
 		},
 
-		submit: async function () {
+		validate: async function () {
 
 			const rules = {...this.$store.getters['form/validations'](this.formName)};
 			const values = {...this.$store.getters['form/values'](this.formName)};
 			const elementNames = Object.keys(rules);
 			let validations = [];
 
-			this.isReady(false);
+			this.ready(false);
 
 			elementNames.map((elementName) => {
 
@@ -178,9 +189,8 @@ const formMixin = {
 				delete rule.serverValidation
 					
 				const test = validate.single(elementValue, rule);
-				test ? this.addError(elementName, test) : this.removeError(elementName);
-				
-				//console.log(elementName, test, rule)
+				test ? this.addError(elementName, test) : (!serverValidation ? this.removeError(elementName) : null);
+
 				if(test === undefined && serverValidation) {
 
 					validations[validations.length] = serverValidation({
@@ -201,10 +211,19 @@ const formMixin = {
 
 			console.log('Waiting...');
 
-			await Promise.all(validations);
-			this.isReady(true);
-			console.log('is ok..');
-			
+			const data = await Promise.all(validations);
+			this.ready(true);
+			return data;
+		},
+		submit: async function () {
+
+			if(!this.canSubmit()){
+				//console.log('Already Submiting data.');
+				return;
+			}
+
+			await this.validate();
+
 			console.log('isSubmiting')
 
 			if(this.hasError()) {
@@ -215,15 +234,18 @@ const formMixin = {
 			}
 			else {
 
-				this.isSubmiting(true);
+				this.submiting(true);
 				setTimeout( () => {
 					console.log('isSubmiting Done.')
 					
-					this.isSubmiting(false);
+					this.submiting(false);
 					this.$emit('submited');
 
 				}, 5000);
 			}
+		},
+		canSubmit: function (){
+			return this.isReady && !this.isSubmiting;
 		}
 	}
 }

@@ -9,7 +9,7 @@ const formElementMix = {
 			type: String,
 			required: true
 		},
-		rules : [Object, Function],
+		rules : Object,
 		validateEvent: {
 			type: String,
 			validator: (val) => ['blur', 'change', 'keypress', 'keyup','keydown','click'].includes(val),
@@ -95,9 +95,11 @@ const formElementMix = {
 				return;
 			}
 			if(this.validating){
+
 				if(this.validationCallback === null) {
 					this.validationCallback = this.validate;
 				}
+				//console.log('Already Requesting...')
 				return;
 			}
 
@@ -115,7 +117,7 @@ const formElementMix = {
 				this.isReady(false);
 				this.$emit('validating');
 				this.validating = true;
-				console.log('Start validating...')
+				//console.log('Start validating...')
 				serverValidation({formData: values, value: value,  name: this.id})
 					.then((res) => {
 						this.isReady(true);
@@ -123,7 +125,7 @@ const formElementMix = {
 						res ? this.addError(res) : this.removeError();
 						this.$emit('validated', res);
 						this.validating = false;
-						this.validationCallback();
+						this.validationCallback ? this.validationCallback():  null;
 						this.validationCallback = null;
 
 					}).catch((err) => {
