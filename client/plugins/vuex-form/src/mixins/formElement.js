@@ -47,6 +47,7 @@ const formElementMix = {
 			formName: null,
 			validationCallback: null,
 			validating: false,
+			isFile: false
 		}
 	},
 
@@ -54,7 +55,7 @@ const formElementMix = {
 
 		this.formName = this.$parent.formName;
 		
-		if(this.getValue(null) == null)
+		if(this.getValue(null) == null && !this.isFile)
 			this.setValue(null);
 
 		if(this.rules)

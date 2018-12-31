@@ -22,7 +22,7 @@
 					<tr>
 						<td>Photo</td>
 						<td>
-							<lq-file id="photo" acceptedFiles="image/*"/>
+							<lq-file :max-no-of-files="1" id="photo" acceptedFiles="image/*"/>
 						</td>
 					</tr>
 					<tr>
@@ -47,6 +47,9 @@
 										<lq-text :id="`addresses.${address_index}.landmark`" class="form-control" placeholder="Landmark" />
 									</td>
 									<td>
+										<lq-file  :id="`addresses.${address_index}.proof`" :max-no-of-files="2" :rules="rules.proof"/>
+									</td>
+									<td>
 										<button @click="remove(`addresses.${address_index}`)">Remove</button>
 									</td>
 								</tr>
@@ -58,17 +61,15 @@
 	 		</td>
 
 	 		<td>
-	 			<!-- <pre>
+	 			<pre>
 	 				<code>
 	 				{{formValues}}
 	 				</code>
-	 			</pre> -->
-	 			<pre>
-	 			<json-viewer :value="formValues"></json-viewer>
-	 		</pre>
-	 		<pre>
+	 			</pre>
+	 			
+	 		<!-- <pre>
 	 			<json-viewer :value="getErrors()"></json-viewer>
-	 		</pre>
+	 		</pre> -->
 	 		</td>
 	 	</tr>
 	 </table>

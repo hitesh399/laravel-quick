@@ -68,6 +68,12 @@ const fileMixIn = {
             }
         }
     },
+    data: function () {
+
+        return {
+            isFile: true
+        }
+    },
     methods: {
 
 		isMultiple: function () {
@@ -184,12 +190,15 @@ const fileMixIn = {
                                       
                                     vm.setValue(file);
 
-                                    if( !(!vm.maxNoOfFiles || (vm.maxNoOfFiles && helper.isArray(storedFiles) && storedFiles.length < vm.maxNoOfFiles )) ) {
+                                    if(vm.maxNoOfFiles && vm.maxNoOfFiles > 1 && helper.isArray(storedFiles) && storedFiles.length < vm.maxNoOfFiles ) {
                                         errors.push(validate.format(vm.lang.maxNoOfFiles, attribues));
                                     }
 
                                     if(errors.length >0) {
                                         vm.addError(errors, (vm.isMultiple() ? currentIndex: undefined) );
+                                    }
+                                    else {
+                                        vm.removeError();
                                     }
                                     resolve(errors);
 	          					}
@@ -197,17 +206,20 @@ const fileMixIn = {
 	          					img.src = e.target.result;
                             }
                             else {
-
+                                
                                 vm.setValue(file);
 
                                 const storedFiles = vm.LQElement ? vm.LQElement : [];
 
-                                if( !(!vm.maxNoOfFiles || (vm.maxNoOfFiles && helper.isArray(storedFiles) && storedFiles.length < vm.maxNoOfFiles )) ) {
+                                if(vm.maxNoOfFiles && vm.maxNoOfFiles > 1 && helper.isArray(storedFiles) && storedFiles.length < vm.maxNoOfFiles ) {
                                     errors.push(validate.format(vm.lang.maxNoOfFiles, attribues));
                                 }
 
                                 if(errors.length >0) {
                                     vm.addError(errors, (vm.isMultiple() ? currentIndex: undefined) );
+                                }
+                                else {
+                                    vm.removeError();
                                 }
 
                                 resolve(errors);

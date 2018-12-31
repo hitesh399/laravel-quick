@@ -16,6 +16,11 @@ export default {
 			allowEmpty: false
 		}
 	},
+	proof: {
+		presence: {
+			allowEmpty: false
+		}
+	},
 	username: {
 
 		presence: {

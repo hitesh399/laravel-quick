@@ -1,5 +1,5 @@
 <template>
-    <input :multiplse="isMultiple()" type="file" @change="handleFileChange"/>
+    <input :multiple="isMultiple()" type="file" @change="handleFileChange"/>
 </template>
 
 <script>
@@ -9,6 +9,6 @@ import fileMixin from './fileMixin';
 export default {
     name: 'LQ-File',
     mixins:[formElement, fileMixin],
-	inheritAttrs: false,
+    inheritAttrs: false,
 }
 </script>
