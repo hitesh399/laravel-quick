@@ -79,34 +79,33 @@ const fileMixIn = {
 		handleFileChange: async function(event)  {
             
             const fileLenght = event.target.files.length;
-              
+            
+            if(this.maxNoOfFiles && helper.isArray(this.LQElement) && (this.LQElement.length+fileLenght) >  this.maxNoOfFiles){
+                this.$emit('MaxFileOver', event);
+                console.log('Max File Over Emit');
+                return;
+            }
             if(fileLenght) {
           		
-                console.log('Started...')
+                //console.log('Started...')
                 this.ready(false);
-          		for (var i = 0; i < fileLenght; i++) {
+                for (var i = 0; i < fileLenght; i++) {
                     
+                    const file = event.target.files[i];
                     if(!this.rules || !this.rules.file) {
                         return;
                     }
 
-                    const file = event.target.files[i];
-                    const result = await fileValidation(file, this.rules.file, this.lang );
-                    result ? this.addError(result, (this.isMultiple() ? i: undefined) ) : null;
-                    console.log('index:', i, result);
                     this.setValue(file);
+                    const result = await fileValidation(file, this.rules.file, this.lang );
+                    result ? this.addError(result, (this.isMultiple() ? this.LQElement.length: undefined) ) : null;
+                    console.log('index:', i, result);
                 }
-                this.ready(false);
-                console.log('Completed...')
-                
 
-          		// Promise.all(allFilePromise).then(function(values) {
-                //     vm.ready(true);
-                //     vm.$emit('change', vm.LQElement);
-				// })
-          	}
-			// console.log(this);
-			// console.log(e);
+                this.ready(false);
+                this.$emit('changed', this.LQElement);
+            }
+            event.target.value = '';
         },
         addError: function (errors, index) {
 
@@ -122,8 +121,8 @@ const fileMixIn = {
 
             const value = file ? {
                 file: file,
-                thumbSizes: this.thumbs,
-                cropped: false,
+                //thumbSizes: this.thumbs,
+                //cropped: false,
                 croppedData: null,
             } : defaultValue;
 
