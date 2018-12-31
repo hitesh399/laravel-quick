@@ -82,6 +82,7 @@ const fileMixIn = {
             
             if(this.maxNoOfFiles && helper.isArray(this.LQElement) && (this.LQElement.length+fileLenght) >  this.maxNoOfFiles){
                 this.$emit('MaxFileOver', event);
+                event.target.value = '';
                 console.log('Max File Over Emit');
                 return;
             }
@@ -98,7 +99,7 @@ const fileMixIn = {
 
                     this.setValue(file);
                     const result = await fileValidation(file, this.rules.file, this.lang );
-                    result ? this.addError(result, (this.isMultiple() ? this.LQElement.length: undefined) ) : null;
+                    result ? this.addError(result, (this.isMultiple() ? (this.LQElement.length-1): undefined) ) : null;
                     console.log('index:', i, result);
                 }
 
@@ -109,9 +110,12 @@ const fileMixIn = {
         },
         addError: function (errors, index) {
 
-            const elementName = index ? this.id+'.'+index : this.id;
+            const elementName = index !== undefined ? this.id+'.'+index : this.id;
 			this.$store.dispatch('form/addError', {formName: this.formName, elementName: elementName, errors: errors});
         },
+        remove: function (elementName) {
+			this.$store.dispatch('form/removeElement', {formName: this.formName, elementName: elementName});
+		},
         /**
          * To set the file value in store
          * @param {File} file 
