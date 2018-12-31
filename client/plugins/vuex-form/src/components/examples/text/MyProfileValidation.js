@@ -19,6 +19,9 @@ export default {
 	proof: {
 		presence: {
 			allowEmpty: false
+		},
+		file: {
+			acceptedFiles: 'image/*'
 		}
 	},
 	username: {

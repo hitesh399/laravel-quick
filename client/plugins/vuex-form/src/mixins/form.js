@@ -186,7 +186,8 @@ const formMixin = {
 				const rule = {...rules[elementName]};
 
 				const { serverValidation } = rule;
-				delete rule.serverValidation
+				delete rule.serverValidation;
+				delete rules.file;
 					
 				const test = validate.single(elementValue, rule);
 				test ? this.addError(elementName, test) : (!serverValidation ? this.removeError(elementName) : null);
