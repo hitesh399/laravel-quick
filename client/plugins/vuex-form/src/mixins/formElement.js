@@ -47,15 +47,15 @@ const formElementMix = {
 			formName: null,
 			validationCallback: null,
 			validating: false,
-			isFile: false
+			//isFile: false
 		}
 	},
 
 	created () {
 
 		this.formName = this.$parent.formName;
-		
-		if(this.getValue(null) == null && !this.isFile)
+
+		if(this.getValue(null) == null)
 			this.setValue(null);
 
 		if(this.rules)
@@ -107,7 +107,8 @@ const formElementMix = {
 			const value = this.getValue();
 			let rules  = {...this.rules};
 			const {serverValidation} = rules;
-			delete rules.serverValidation
+			delete rules.serverValidation;
+			delete rules.file;
 
 			const test = validate.single(value, rules);
 			//console.log('Test...', test);

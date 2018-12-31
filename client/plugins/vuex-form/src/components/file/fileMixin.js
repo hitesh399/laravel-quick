@@ -70,12 +70,6 @@ const fileMixIn = {
             }
         }
     },
-    data: function () {
-
-        return {
-            isFile: true
-        }
-    },
     methods: {
 
 		isMultiple: function () {
@@ -100,10 +94,11 @@ const fileMixIn = {
                     const result = await fileValidation(file, this.rules.file, this.lang );
                     result ? this.addError(result, (this.isMultiple() ? i: undefined) ) : null;
                     console.log('index:', i, result);
+                    this.setValue(file);
                 }
                 this.ready(false);
                 console.log('Completed...')
-
+                
 
           		// Promise.all(allFilePromise).then(function(values) {
                 //     vm.ready(true);
@@ -123,19 +118,21 @@ const fileMixIn = {
          * @param {File} file 
          */
         setValue: function (file) {
+            const defaultValue = this.isMultiple() ? [] : {};
 
-            let value = {
+            const value = file ? {
                 file: file,
                 thumbSizes: this.thumbs,
                 cropped: false,
                 croppedData: null,
-            }
+            } : defaultValue;
 
-            let data = {
+            const data = {
                 formName: this.formName, 
                 elementName: this.id, 
                 value: value
             }
+            console.log('Data', data);
             const action = this.isMultiple() ? 'form/addNewElement' : 'form/setElementValue';
 
             this.$store.dispatch(action, data);

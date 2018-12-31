@@ -98,12 +98,12 @@ export default  {
 	  	props = typeof props === "string" ? props.split('.') : props;
 	  	// Convert the value into Array
 		value = !this.isArray(value) ? [value] : value;
-
+		//console.log('pushProp',props, value)
 		const prop = props.shift()
 
 		if (!obj[prop]) {
-			
-			Vue.set(obj, prop, (props.length >= 1  && this.isInteger(props[0]) ? [] : {}) )
+			console.log('Testing....', prop, props, ( (props.length >= 1  && this.isInteger(props[0]) || props.length ===0 ) ? [] : {}))
+			Vue.set(obj, prop, ( (props.length >= 1  && this.isInteger(props[0]) || props.length ===0 ) ? [] : {}) )
 		}
 		if (!props.length) {
 
@@ -140,7 +140,7 @@ export default  {
 			}
 
 			 else {
-
+			  console.log('pushProp',props, value)
 			  Vue.set(obj, prop, value);
 
 			}
@@ -169,7 +169,7 @@ export default  {
 		
 		if (!obj[prop]) {
 
-			Vue.set(obj, prop, (props.length >= 1   && this.isInteger(props[0]) ? [] : {}) )
+			Vue.set(obj, prop, ( (props.length >= 1  && this.isInteger(props[0]) || props.length ===0 ) ? [] : {}) )
 		}
 		if (!props.length) {
 
