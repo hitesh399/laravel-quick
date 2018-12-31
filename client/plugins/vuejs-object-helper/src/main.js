@@ -241,6 +241,17 @@ export default  {
 		let regex = new RegExp(/^[0-9]+$/);
 		return regex.test(value);
 	},
+	/*
+	 |------------------
+	 | To check the given string contains a valid float number
+	 |-----------------------------------------
+	 * @param value => String
+	 */
+	isFloat: function (value) {
+
+		let regex = new RegExp(/^[0-9]?+(.)?+[0-9]+$/);
+		return regex.test(value);
+	},
 	/**
 	* Covert Query string to Object
 	*/

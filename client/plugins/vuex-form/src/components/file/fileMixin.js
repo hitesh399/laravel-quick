@@ -1,5 +1,7 @@
 
-import {isImage, checkFileExtensions} from 'vuejs-object-helper';
+import helper, {isImage, checkFileExtensions} from 'vuejs-object-helper';
+import errorLang from './fileErrorLang';
+import validate from 'validate.js';
 
 const fileMixIn = {
     props: {
@@ -46,13 +48,27 @@ const fileMixIn = {
 			validator: (value) => {
 				return value ? (value.length == 2) : true
 			}	
-		},
+        },
+        lang: {
+            type: Object,
+            required: false,
+            default: () => {return errorLang}
+        },
+        thumbs: {
+            type: Array,
+            default: () => { return null; },
+            validator: (value) => {
+                let isValid = true;
+                value.map(function (v) {
+                    if(!helper.isFloat( v.width ) || !helper.isFloat( v.height ) ){
+                        isValid = false;
+                    }
+                })
+                return isValid;
+            }
+        }
     },
     methods: {
-		
-		confirm : function (){
-		  this.$swal('Hello Vue world!!!');
-		},
 
 		isMultiple: function () {
 
@@ -63,7 +79,7 @@ const fileMixIn = {
 			console.log('changeEvent');
 			var fileLenght = event.target.files.length;
 			var vm = this;
-			var maxFileSizeBytes = this.maxFileSizez ? this.maxFileSizez*1024*1204 : null;
+			var maxFileSizeBytes = this.maxFileSize ? this.maxFileSize*1024*1204 : null;
 			var minFileSizeBytes = this.minFileSize? this.minFileSize*1024*1204: null;	
 			// console.log('fffffffff');
             // console.log(this.acceptedFiles)
@@ -78,29 +94,35 @@ const fileMixIn = {
           		for (var i = 0; i < fileLenght; i++) {
 
           			allFilePromoise[i] =  new Promise(function(resolve, reject) {
-						var file = event.target.files[i];
+                        var file = event.target.files[i];
+                        const currentIndex =  i;
 	          			var a = new FileReader();
 	          			a.onload = function(e) { 
+                            
+                            let errors = [];
+                            let attribues = {
+                                maxFileSize: vm.maxFileSize,
+                                minFileSize: vm.minFileSize,
+                                fileSize: e.total,
+                                acceptedFiles: acceptedFiles
+                            }
 
 	          				if(maxFileSizeBytes && e.total > maxFileSizeBytes) {
-
-	          					resolve(0)
-	          					vm.errorFiles.push({fileReader: e, file: file, error: 'File size should be less than '+ vm.maxFileSizez + ' MB.', error_code: 1 })
+                               
+                                errors.push(validate.format(vm.lang.maxFileSize, attribues));
 	          				}
-	          				else if (acceptedFiles && !checkFileExtensions(acceptedFiles, file) ){
+                              
+                            if (acceptedFiles && !checkFileExtensions(acceptedFiles, file) ){
 
-	          					
-	          					vm.errorFiles.push({fileReader: e, file: file, error: 'Invalid file.',  error_code: 2})
-	          					resolve(0)
+                                errors.push(validate.format(vm.lang.acceptedFiles, attribues));
 	          				}
 
-	          				else if(minFileSizeBytes && e.total <  minFileSizeBytes) {
+	          				if(minFileSizeBytes && e.total <  minFileSizeBytes) {
 
-	          					
-	          					vm.errorFiles.push({fileReader: e, file: file, error: 'File size should be greater than '+ vm.minFileSize + ' MB.' ,  error_code: 3})	
-	          					resolve(0)	
+                                errors.push(validate.format(vm.lang.minFileSize, attribues));
 	          				} 
-	          				else if(isImage(e.target.result)) {
+                              
+                            if(isImage(e.target.result)) {
 
 	          					var img = new Image();
 
@@ -108,137 +130,125 @@ const fileMixIn = {
 
 	          						// Min Size validation
 	          						if(vm.minImageDimensions && vm.minImageDimensions[0] && !vm.minImageDimensions[1] && imgE.width < vm.minImageDimensions[0] ) {
-	          							
-	          							vm.errorFiles.push({fileReader: e, file: file, error: 'Image width should be greater than '+ vm.minImageDimensions[0] + ' PX.',  error_code: 4 });
-
-	          							resolve(0)	
-	          								
+                                        
+                                        attribues.minImageWidth = vm.minImageDimensions[0];
+                                        errors.push(validate.format(vm.lang.minImageWidth, attribues));
 	          						} 
 	          						else if ( vm.minImageDimensions && vm.minImageDimensions[1] && !vm.minImageDimensions[0] && imgE.height < vm.minImageDimensions[1] ) {
 
-	          							
-	          							vm.errorFiles.push({fileReader: e, file: file, error: 'Image height should be greater than '+ vm.minImageDimensions[0] + ' PX.',  error_code: 5 })
-	          							resolve(0)
+                                        attribues.minImageHeight = vm.minImageDimensions[1];
+                                        errors.push(validate.format(vm.lang.minImageHeight, attribues));
 	          						}
 	          						else if ( vm.minImageDimensions && vm.minImageDimensions[1] && vm.minImageDimensions[0] && (imgE.height < vm.minImageDimensions[1] || imgE.width < vm.minImageDimensions[0] )) {
 
-	          							vm.errorFiles.push({fileReader: e, file: file, error: 'Image width/height should be greater than '+ vm.minImageDimensions[0] + '/'+vm.minImageDimensions[1]+' PX.',  error_code: 6 })
-	          							resolve(0)
-	          							
-	          						}
+                                        attribues.minImageHeight = vm.minImageDimensions[1];
+                                        attribues.minImageWidth = vm.minImageDimensions[0];
+                                        errors.push(validate.format(vm.lang.minImageWidthHeight, attribues));
+                                    }
+                                      
 	          						// Max Dimensions Validation
-	          						else if(vm.maxImageDimensions && vm.maxImageDimensions[0] && !vm.maxImageDimensions[1] && imgE.width > vm.maxImageDimensions[0] ) {
+	          						if(vm.maxImageDimensions && vm.maxImageDimensions[0] && !vm.maxImageDimensions[1] && imgE.width > vm.maxImageDimensions[0] ) {
 
-	          							
-	          							vm.errorFiles.push({fileReader: e, file: file, error: 'Image width should be less than '+ vm.maxImageDimensions[0] + ' PX.',  error_code: 7 })	
-	          							resolve(0)	
+                                        attribues.maxImageWidth = vm.maxImageDimensions[0];
+                                        errors.push(validate.format(vm.lang.maxImageWidth, attribues));	
 	          						} 
 	          						else if ( vm.maxImageDimensions && vm.maxImageDimensions[1] && !vm.maxImageDimensions[0] && imgE.height > vm.maxImageDimensions[1] ) {
-
-	          							
-	          							vm.errorFiles.push({fileReader: e, file: file, error: 'Image height should be less than '+ vm.maxImageDimensions[0] + ' PX.',  error_code: 8 })
-	          							resolve(0)
+                                        
+                                        attribues.maxImageHeight = vm.maxImageDimensions[1];
+                                        errors.push(validate.format(vm.lang.maxImageHeight, attribues));
 	          						}
 	          						else if ( vm.maxImageDimensions && vm.maxImageDimensions[1] && vm.maxImageDimensions[0] && (imgE.height > vm.maxImageDimensions[1] || imgE.width > vm.maxImageDimensions[0] )) {
-
-	          							
-	          							vm.errorFiles.push({fileReader: e, file: file, error: 'Image width/height should be less than '+ vm.maxImageDimensions[0] + '/'+vm.maxImageDimensions[1]+' PX.' ,  error_code: 9})
-	          							resolve(0)
+                                        
+                                        attribues.maxImageWidth = vm.maxImageDimensions[0];
+                                        attribues.maxImageHeight = vm.maxImageDimensions[1];
+                                        errors.push(validate.format(vm.lang.maxImageWidthHeight, attribues));
 	          						}
 	          						// exactImageDimensions
-	          						else if(vm.exactImageDimensions && vm.exactImageDimensions[0] && !vm.exactImageDimensions[1] && imgE.width != vm.exactImageDimensions[0] ) {
+	          						if(vm.exactImageDimensions && vm.exactImageDimensions[0] && !vm.exactImageDimensions[1] && imgE.width != vm.exactImageDimensions[0] ) {
 
-	          							
-	          							vm.errorFiles.push({fileReader: e, file: file, error: 'Image width should be '+ vm.exactImageDimensions[0] + ' PX.' ,  error_code: 10})	
-	          							resolve(0)	
+                                        attribues.imageWidth = vm.exactImageDimensions[0];
+                                        errors.push(validate.format(vm.lang.imageWidth, attribues));	
 	          						} 
 	          						else if ( vm.exactImageDimensions && vm.exactImageDimensions[1] && !vm.exactImageDimensions[0] && imgE.height != vm.exactImageDimensions[1] ) {
 
-	          							
-	          							vm.errorFiles.push({fileReader: e, file: file, error: 'Image height should be '+ vm.exactImageDimensions[0] + ' PX.',  error_code: 11 })
-	          							resolve(0)
+                                        attribues.imageHeight = vm.exactImageDimensions[1];
+                                        errors.push(validate.format(vm.lang.imageHeight, attribues));
 	          						}
 	          						else if ( vm.exactImageDimensions && vm.exactImageDimensions[1] && vm.exactImageDimensions[0] && (imgE.height != vm.exactImageDimensions[1] || imgE.width != vm.exactImageDimensions[0] )) {
+                                        
+                                        attribues.imageWidth = vm.exactImageDimensions[0];
+                                        attribues.imageHeight = vm.exactImageDimensions[1];
+                                        errors.push(validate.format(vm.lang.imageWidthHeight, attribues));
+                                    }
+                                      
+                                    this.setValue(file);
 
-	          							
-	          							vm.errorFiles.push({fileReader: e, file: file, error: 'Image width/height should be '+ vm.exactImageDimensions[0] + '/'+vm.exactImageDimensions[1]+' PX.',  error_code: 12 });
-	          							resolve(0)
-
-	          						} else {
-
-	          							// console.log('vm.files.length');
-	          							// console.log(vm.files.length);
-	          							// console.log(vm.files);
-	          							
-	          							if(!vm.maxNoOfFiles || (vm.maxNoOfFiles && vm.files.length < vm.maxNoOfFiles )) {
-		          							
-		          							vm.files.push({fileReader: e, file: file, error: null});
-		          							resolve(1);
-		          						} 
-		          						else {
-
-		          							
-		          							vm.errorFiles.push({fileReader: e, file: file, error: 'You can only Select '+ vm.maxNoOfFiles + ' File(s).',  error_code: 13});
-		          							resolve(0);
-		          						}
-	          						}	
+                                    if(errors.length >0) {
+                                        vm.addError(errors, (vm.isMultiple() ? currentIndex: undefined) );
+                                    }
+                                    resolve(errors);
 	          					}
 
 	          					img.src = e.target.result;
-	          				} 
-	          				else {
+                              }
+                              else {
 
-	          					if(!vm.maxNoOfFiles || (vm.maxNoOfFiles && vm.files.length < vm.maxNoOfFiles )) {
-		          					
-		          					vm.files.push({fileReader: e, file: file, error: null, error_code: null});
-		          					resolve(1);
-		          				}
-		          				else {
+                                this.setValue(file);
+                                
+                                if(errors.length >0) {
+                                    vm.addError(errors, (vm.isMultiple() ? currentIndex: undefined) );
+                                }
 
-          							vm.errorFiles.push({fileReader: e, file: file, error: 'You can only Select '+ vm.maxNoOfFiles + ' File(s).',  error_code: 13});
-          							resolve(0);
-          						}
-
-	          				}
-					    };
+                                resolve(errors);
+                              }
+                        };
+                        
 					    event.target.value = '';
-					    
 					    a.readAsDataURL(file);
-
 				    });
 
           		}
 
           		Promise.all(allFilePromoise).then(function(values) {
-				  console.log('values');
-				  console.log(values);
-				  console.log(vm);
-
-				  if(vm.errorFiles.length){
-				    //vm.removeAllErrorFile()
-				  }
+				
 
 
-				  vm.$emit('input', {files: vm.files, errorFiles: vm.errorFiles});
-				  
-				  if(vm.onChange) {
-
-				  	console.log('on Change File..', vm.files);
-				  	vm.onChange();
-				  }
+				  vm.$emit('change', {files: vm.files, errorFiles: vm.errorFiles});
 
 				}).catch(function (errors) {
-
-					//console.log('errors');
-				    //console.log(errors);
-				    if(vm.errorFiles.length){
-				    	//vm.removeAllErrorFile()
-				    }
-				    vm.$emit('input', {files: vm.files, errorFiles: vm.errorFiles});
+					
+				    vm.$emit('change', {files: vm.files, errorFiles: vm.errorFiles});
 				})
           	}
 			// console.log(this);
 			// console.log(e);
-		}
+        },
+        addError: function (errors, index) {
+
+            const elementName = index ? this.id+'.'+index : this.id;
+			this.$store.dispatch('form/addError', {formName: this.formName, elementName: elementName, errors: errors});
+        },
+        /**
+         * To set the file value in store
+         * @param {File} file 
+         */
+        setValue: function (file) {
+            
+            let value = {
+                file: file,
+                thumbSizes: this.thumbs,
+                cropped: false,
+                croppedData: null,
+            }
+
+            let data = {
+                formName: this.formName, 
+                elementName: this.id, 
+                value: value
+            }
+            const action = this.isMultiple() ? 'form/addNewElement' : 'form/setElementValue';
+
+            this.$store.dispatch(action, data);
+        }
 	}
 }
