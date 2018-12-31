@@ -85,7 +85,7 @@ const formElementMix = {
 			
 			this.$store.dispatch('form/removeError', {formName: this.formName, elementName: this.id});
 		},
-		isReady: function (status) {
+		ready: function (status) {
 			
 			this.$store.dispatch('form/isReady', {formName: this.formName, status});
 		},
@@ -114,13 +114,13 @@ const formElementMix = {
 			if(test === undefined && serverValidation) {
 
 				const values = {...this.$store.getters['form/values'](this.formName)};
-				this.isReady(false);
+				this.ready(false);
 				this.$emit('validating');
 				this.validating = true;
 				//console.log('Start validating...')
 				serverValidation({formData: values, value: value,  name: this.id})
 					.then((res) => {
-						this.isReady(true);
+						this.ready(true);
 						//console.log('Res', res);
 						res ? this.addError(res) : this.removeError();
 						this.$emit('validated', res);
@@ -129,7 +129,7 @@ const formElementMix = {
 						this.validationCallback = null;
 
 					}).catch((err) => {
-						this.isReady(true);
+						this.ready(true);
 						this.addError(err)
 						this.$emit('validated', err);
 						this.validating = false;

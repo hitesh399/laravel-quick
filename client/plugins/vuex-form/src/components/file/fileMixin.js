@@ -84,16 +84,16 @@ const fileMixIn = {
 			// console.log('fffffffff');
             // console.log(this.acceptedFiles)
             
-			var acceptedFiles = this.acceptedFiles ? (_.isArray(this.acceptedFiles) ? this.acceptedFiles : acceptedFiles.split(','))  : null;
+			var acceptedFiles = this.acceptedFiles ? (helper.isArray(this.acceptedFiles) ? this.acceptedFiles : this.acceptedFiles.split(','))  : null;
 			//var minImageDimensions = this.minImageDimensions;
 
           	if(fileLenght) {
           		
-          		var allFilePromoise = [];
-
+          		let allFilePromise = [];
+                this.ready(false);
           		for (var i = 0; i < fileLenght; i++) {
 
-          			allFilePromoise[i] =  new Promise(function(resolve, reject) {
+                    allFilePromise[i] =  new Promise(function(resolve, reject) {
                         var file = event.target.files[i];
                         const currentIndex =  i;
 	          			var a = new FileReader();
@@ -103,6 +103,7 @@ const fileMixIn = {
                             let attribues = {
                                 maxFileSize: vm.maxFileSize,
                                 minFileSize: vm.minFileSize,
+                                maxNoOfFiles: vm.maxNoOfFiles,
                                 fileSize: e.total,
                                 acceptedFiles: acceptedFiles
                             }
@@ -181,7 +182,11 @@ const fileMixIn = {
                                         errors.push(validate.format(vm.lang.imageWidthHeight, attribues));
                                     }
                                       
-                                    this.setValue(file);
+                                    vm.setValue(file);
+
+                                    if( !(!vm.maxNoOfFiles || (vm.maxNoOfFiles && helper.isArray(storedFiles) && storedFiles.length < vm.maxNoOfFiles )) ) {
+                                        errors.push(validate.format(vm.lang.maxNoOfFiles, attribues));
+                                    }
 
                                     if(errors.length >0) {
                                         vm.addError(errors, (vm.isMultiple() ? currentIndex: undefined) );
@@ -190,17 +195,23 @@ const fileMixIn = {
 	          					}
 
 	          					img.src = e.target.result;
-                              }
-                              else {
+                            }
+                            else {
 
-                                this.setValue(file);
-                                
+                                vm.setValue(file);
+
+                                const storedFiles = vm.LQElement ? vm.LQElement : [];
+
+                                if( !(!vm.maxNoOfFiles || (vm.maxNoOfFiles && helper.isArray(storedFiles) && storedFiles.length < vm.maxNoOfFiles )) ) {
+                                    errors.push(validate.format(vm.lang.maxNoOfFiles, attribues));
+                                }
+
                                 if(errors.length >0) {
                                     vm.addError(errors, (vm.isMultiple() ? currentIndex: undefined) );
                                 }
 
                                 resolve(errors);
-                              }
+                            }
                         };
                         
 					    event.target.value = '';
@@ -209,15 +220,9 @@ const fileMixIn = {
 
           		}
 
-          		Promise.all(allFilePromoise).then(function(values) {
-				
-
-
-				  vm.$emit('change', {files: vm.files, errorFiles: vm.errorFiles});
-
-				}).catch(function (errors) {
-					
-				    vm.$emit('change', {files: vm.files, errorFiles: vm.errorFiles});
+          		Promise.all(allFilePromise).then(function(values) {
+                    vm.ready(true);
+                    vm.$emit('change', vm.LQElement);
 				})
           	}
 			// console.log(this);
@@ -233,7 +238,7 @@ const fileMixIn = {
          * @param {File} file 
          */
         setValue: function (file) {
-            
+
             let value = {
                 file: file,
                 thumbSizes: this.thumbs,
@@ -252,3 +257,5 @@ const fileMixIn = {
         }
 	}
 }
+
+export default fileMixIn;

@@ -19,7 +19,12 @@
 						<td>User Name</td>
 						<td><lq-text id="username" :rules="rules.username" validate-event="keyup" class="form-control" /></td>
 					</tr>
-
+					<tr>
+						<td>Photo</td>
+						<td>
+							<lq-file id="photo" acceptedFiles="image/*"/>
+						</td>
+					</tr>
 					<tr>
 						<td>Addresses:</td>
 						<td><button @click="push('addresses', {})">Add</button></td>
@@ -73,6 +78,7 @@
 <script type="text/javascript">
 	import form from '../../../mixins/form';
 	import lqText from '../../text/LQ-Text';
+	import lqFile from '../../file/LQ-File';
 	import validationRule from './MyProfileValidation';
 
 	export default {
@@ -80,7 +86,8 @@
 		inheritAttrs: true,
 		mixins: [form],
 		components: {
-			lqText
+			lqText,
+			lqFile
 		},
 		data: function () {
 

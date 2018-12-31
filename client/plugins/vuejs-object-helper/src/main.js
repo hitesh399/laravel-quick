@@ -249,7 +249,7 @@ export default  {
 	 */
 	isFloat: function (value) {
 
-		let regex = new RegExp(/^[0-9]?+(.)?+[0-9]+$/);
+		let regex = new RegExp(/^-?\d*(\.\d+)?$/);
 		return regex.test(value);
 	},
 	/**
