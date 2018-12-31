@@ -93,14 +93,14 @@ const fileMixIn = {
                 for (var i = 0; i < fileLenght; i++) {
                     
                     const file = event.target.files[i];
-                    if(!this.rules || !this.rules.file) {
-                        return;
-                    }
-
                     this.setValue(file);
-                    const result = await fileValidation(file, this.rules.file, this.lang );
-                    result ? this.addError(result, (this.isMultiple() ? (this.LQElement.length-1): undefined) ) : null;
-                    console.log('index:', i, result);
+
+                    if(this.rules && this.rules.file) {
+                       
+                        const result = await fileValidation(file, this.rules.file, this.lang );
+                        result ? this.addError(result, (this.isMultiple() ? (this.LQElement.length-1): undefined) ) : null;
+                        console.log('index:', i, result);
+                    }
                 }
 
                 this.ready(false);
@@ -125,7 +125,7 @@ const fileMixIn = {
 
             const value = file ? {
                 file: file,
-                //thumbSizes: this.thumbs,
+                thumbSizes: this.thumbs,
                 //cropped: false,
                 croppedData: null,
             } : defaultValue;

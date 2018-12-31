@@ -5,16 +5,26 @@
         </div>
         <div v-else-if="isImage && result">
             <img :src="result" :alt="file.name" />
+            
+            <vue-cropper
+                ref="cropper"
+                :src="result"
+                alt="Source Image"
+                :cropmove="cropImage"
+                >
+            </vue-cropper>
         </div>
         <div v-else>
             <p>{{file.name}}</p>
         </div>
         <p v-if="error">{{error.join(', ')}}</p>
         <button @click="$emit('remove', name)">Delete</button>
+       
     </div>
 </template>
 <script>
 import  helper, {isImage} from 'vuejs-object-helper';
+import VueCropper from 'vue-cropperjs';
 
 export default {
     name: 'LQ-FileReader',
@@ -28,6 +38,9 @@ export default {
             required: true,
         }
     },
+    components:{
+        VueCropper
+    },
     data: function () {
 
         return {
@@ -35,6 +48,7 @@ export default {
             result: null,
             loading: false,
             formName: null,
+            //cropImage: null
         }
     },
     computed: {
@@ -61,6 +75,9 @@ export default {
     methods: {
         delete: function () {
             console.log('Native Event to delete..')
+        },
+        cropImage: function (cropImage) {
+            console.log('cropImage', cropImage)
         }
     }
 }
