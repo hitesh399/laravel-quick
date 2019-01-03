@@ -1,8 +1,12 @@
 <template>
     <div>
         <input :multiple="isMultiple()" type="file" @change="handleFileChange" :id="id" :name="makeElementName()"/>
+        <label :for="id">
+            <slot name="button_wrap">
+               Browse
+            </slot>
+        </label>
         <div v-if="(isMultiple() && LQElement)">
-            qddhkjfgejgfje
             <lq-file-reader v-for="(item, index) in LQElement" 
              :key="`${id}_preview_${index}`" 
              :elementName="`${id}.${index}`" 
@@ -16,7 +20,6 @@
             :thumbnails="thumbs" 
             v-on:remove="deleteFile" />
         </div>
-    
     </div>
 </template>
 
@@ -43,3 +46,8 @@ export default {
     }
 }
 </script>
+<style>
+    input[type="file"] {
+        visibility: hidden;
+    }
+</style>
