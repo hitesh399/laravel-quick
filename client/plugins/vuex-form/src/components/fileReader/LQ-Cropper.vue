@@ -86,15 +86,18 @@ export default {
                 circle: this.circle 
             })
             .then( (blobData) => {
-                let name = this.thumbnailIndex !== undefined ? '_thumb_'+this.thumbnailIndex : '';
-                let newFile = new File([blobData], updateFileName(this.file.name, name), {type: this.circle ? 'png' : this.file.type });
-                let elementName = this.thumbnailIndex !== undefined ? this.elementName+'.file' : this.elementName+'.thumbnails.'+this.thumbnailIndex+'.file';
+                
+                let name = this.thumbnailIndex !== undefined ?  updateFileName(this.file.name, '_thumb_'+this.thumbnailIndex) : this.file.name;
+                let newFile = new File([blobData], name , {type: this.circle ? 'png' : this.file.type });
+                let elementName = this.thumbnailIndex === undefined ? this.elementName+'.file' : this.elementName+'.thumbnails.'+this.thumbnailIndex+'.file';
+                
+                console.log('Element name', elementName, newFile);
 
-                // this.$store.dispatch('form/setElementValue', {
-                //     formName: this.formName,
-                //     elementName: elementName,
-                //     value: newFile
-                // })
+                this.$store.dispatch('form/setElementValue', {
+                    formName: this.formName,
+                    elementName: elementName,
+                    value: newFile
+                })
             })
 
         },

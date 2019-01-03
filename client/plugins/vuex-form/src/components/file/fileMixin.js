@@ -131,9 +131,9 @@ const fileMixIn = {
 
             const value = file ? {
                 file: file,
-                thumbSizes: this.thumbs,
+                //thumbSizes: this.thumbs,
                 //cropped: false,
-                croppedData: null,
+                //croppedData: null,
             } : defaultValue;
 
             const data = {

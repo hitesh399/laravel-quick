@@ -16,8 +16,7 @@
             />
         </div>
         <!-- <p v-if="error">{{error.join(', ')}}</p> -->
-        <button @click="$emit('remove', name)">Delete</button>
-       
+        <button @click="$emit('remove', elementName)">Delete</button>
     </div>
 </template>
 <script>
@@ -30,7 +29,7 @@ export default {
     props: {
         crop: {
             type: Object,
-            default: () => {size: 'original'}
+            default: () => { return {size: 'original', enableResize: false}}
         },
         // crop: {
         //      // [{width: 100, height: 100, type: 'square'}]
@@ -65,13 +64,14 @@ export default {
         }
     },
     created: function () {
-        console.log('Form Name', getFormName(this));
+        console.log('Form Name', getFormName(this), this.elementName);
         this.formName = getFormName(this);
         this.readFile();
     },
     watch: {
 
         file: function (newFile, oldFile) {
+            
             !oldFile || newFile.name !==  oldFile.name ? this.readFile() : null;
         }
     },
