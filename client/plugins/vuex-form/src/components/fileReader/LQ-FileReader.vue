@@ -36,11 +36,11 @@ export default {
     props: {
         file :{
             type: File,
-            required: false
+            required: true
         },
         name: {
             type: String,
-            required: false,
+            required: true,
         },
         elementName:{
             type: String,
@@ -63,19 +63,14 @@ export default {
     computed: {
         error: function () {
             console.log('this.name]', this.name, this.formName);
-            
 			return helper.getProp(this.$store.state.form, [this.formName, 'errors', this.name], null);
 		}
     },
     created() {
         this.formName = this.getParent().formName;
         console.log('This........', this);
+        this.readFile();
         
-        //this.readFile();
-        
-    },
-    mounted: function () {
-        console.log('elementName',this.$els)
     },
     watch:{
         result: function (newVal, oldVal) {
@@ -83,9 +78,8 @@ export default {
             this.$nextTick(() => {
                 this.$refs.croppieRef.bind({
                     url: newVal,
-                    zoom: 0
+                    zoom:0
                 })
-                //this.$refs.croppieRef.setZoom(50);
             })
         },
         file: function () {
@@ -109,8 +103,18 @@ export default {
 				return this.getParent(parent.$parent);
 			}
         },
-        fn1: function () {},
-        fn2: function () {},
+        fn1: function () {
+            console.log('fn1')
+        },
+        fn2: function (a1,a2,a3) {
+            console.log('fn2', a1,a2,a3)
+            //console.log('Result 2', );
+            this.$refs.croppieRef.result({ type: 'blob', size:'original', format:'png', quality: 1, circle: false }).then(function(d){
+                console.log('Result ', d)
+                console.log('Result File:, ', new File([d], "test.jpeg", {lastModified: new Date()}));
+            })
+
+        },
         readFile: function () {
 
             let fReader = new FileReader();

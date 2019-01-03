@@ -73,6 +73,8 @@ const fileMixIn = {
     created: function () {  
         this.$lqfiles = !this.$lqfiles ? [] : this.$lqfiles;
         this.$lqfiles[this.id] = this;
+        console.log('in file', this.$lqfiles);
+        this.$root.$emit('lqfiles.ready', this.id);
     },
     methods: {
 

@@ -3,8 +3,7 @@
   <el-header>Header</el-header>
   <el-main>
 	  <h1> Text Element Examples</h1>
-	<lq-file :max-no-of-files="1" id="photoa" name="xyz" acceptedFiles="image/*"/>
-	<lq-file-reader key="xyz_preview"  elementName="xyz"  />
+	
 		<table>
 			<tr>
 				<td>
