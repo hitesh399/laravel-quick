@@ -1,6 +1,13 @@
 
 <template>
-    
+    <vue-croppie 
+        ref="croppieRef"
+        v-bind="$attrs" 
+        :viewport="viewport"
+        :boundary="boundary"
+        @result="fn1"
+        @update="updateFileData">
+    </vue-croppie>
 </template>
 
 <script>
@@ -12,13 +19,24 @@ export default {
         elementName:{
             type: String,
             required: true
+        },
+        viewport: {
+            type: Object,
+            required: true
+        },
+        boundary: {
+            type: Object,
+            default() { return { width: 300, height: 300 }; }
+        }
+    },
+    data: function () {
+        return {
+            imageRawData: null,
+            loading: false,
+            formName: null
         }
     },
     computed: {
-        error: function () {
-            //console.log('this.name]', this.name, this.formName);
-			return helper.getProp(this.$store.state.form, [this.formName, 'errors', this.elementName], null);
-        },
         file: function () {
 
             return helper.getProp(this.$store.state.form, `${this.formName}.values.${this.elementName}.file`, null);
@@ -26,12 +44,10 @@ export default {
     },
     created() {
         this.formName = getFormName(this);
-        //console.log('This........', this);
         this.readFile();
-        
     },
     watch:{
-        result: function (newVal, oldVal) {
+        imageRawData: function (newVal, oldVal) {
             //console.log('ddddddd', newVal, oldVal);
             this.$nextTick(() => {
                 this.$refs.croppieRef.bind({
@@ -48,7 +64,7 @@ export default {
         fn1: function () {
             console.log('fn1')
         },
-        fn2: function (a1,a2,a3) {
+        updateFileData: function (a1,a2,a3) {
             console.log('fn2', a1,a2,a3)
             //console.log('Result 2', );
             this.$refs.croppieRef.result({ type: 'blob', size:'original', format:'png', quality: 1, circle: false }).then(function(d){
@@ -70,7 +86,7 @@ export default {
 
                 this.isImage  =  isImage(e.target.result) ? true : false;
                 this.loading = false;
-                this.result = e.target.result;
+                this.imageRawData = e.target.result;
             }
             fReader.readAsDataURL(this.file);
         },
