@@ -6,13 +6,12 @@
         <div v-else-if="isImage && result">
             <img :src="result" :alt="file.name" />
             
-            <vue-cropper
-                ref="cropper"
-                :src="result"
-                alt="Source Image"
-                :cropmove="cropImage"
-                >
-            </vue-cropper>
+            <vue-croppie 
+            ref="croppieRef" 
+            :enableOrientation="true"
+            @result="fn1"
+            @update="fn2">
+        </vue-croppie>
         </div>
         <div v-else>
             <p>{{file.name}}</p>
@@ -24,7 +23,7 @@
 </template>
 <script>
 import  helper, {isImage} from 'vuejs-object-helper';
-import VueCropper from 'vue-cropperjs';
+//import VueCropper from 'vue-cropperjs';
 
 export default {
     name: 'LQ-FileReader',
@@ -39,7 +38,7 @@ export default {
         }
     },
     components:{
-        VueCropper
+        //VueCropper
     },
     data: function () {
 
@@ -58,7 +57,7 @@ export default {
 		}
     },
     created() {
-        this.formName = this.$parent.formName;
+        this.formName = this.getParent().formName;
         console.log('This........', this.formName);
         
         let fReader = new FileReader();
@@ -69,8 +68,20 @@ export default {
             this.isImage  =  isImage(e.target.result) ? true : false;
             this.loading = false;
             this.result = e.target.result;
+            //this.trick
+            
         }
         fReader.readAsDataURL(this.file);
+    },
+    watch:{
+        result: function (newVal, oldVal) {
+            console.log('ddddddd', newVal, oldVal);
+            this.$nextTick(() => {
+                this.$refs.croppieRef.bind({
+                    url: 'http://i.imgur.com/Fq2DMeH.jpg',
+                })
+            })
+        }
     },
     methods: {
         delete: function () {
@@ -78,7 +89,19 @@ export default {
         },
         cropImage: function (cropImage) {
             console.log('cropImage', cropImage)
-        }
+        },
+        getParent: function (parent) {
+			parent = !parent ? this.$parent : parent;
+			
+			if(parent.formName !== undefined) {
+				return parent;
+			}
+			else {
+				return this.getParent(parent.$parent);
+			}
+        },
+        fn1: function () {},
+        fn2: function () {},
     }
 }
 </script>

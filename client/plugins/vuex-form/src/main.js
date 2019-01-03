@@ -7,6 +7,9 @@ Vue.use(JsonViewer)
 import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 import './plugins/element.js'
+import VueCroppie from 'vue-croppie';
+Vue.use(VueCroppie);
+
 Vue.use(ElementUI);
 
 Vue.config.productionTip = false

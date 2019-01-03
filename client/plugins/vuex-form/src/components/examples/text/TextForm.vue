@@ -1,5 +1,5 @@
 <template>
-	<el-container>
+<el-container>
   <el-header>Header</el-header>
   <el-main>
 	  <h1> Text Element Examples</h1>

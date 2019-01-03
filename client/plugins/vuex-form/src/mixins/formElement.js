@@ -53,8 +53,8 @@ const formElementMix = {
 
 	created () {
 
-		this.formName = this.$parent.formName;
-
+		this.formName = this.getParent().formName;
+		//console.log('Element', this);
 		if(this.getValue(null) == null)
 			this.setValue(null);
 
@@ -63,7 +63,16 @@ const formElementMix = {
 	},
 
 	methods: {
-
+		getParent: function (parent) {
+			parent = !parent ? this.$parent : parent;
+			
+			if(parent.formName !== undefined) {
+				return parent;
+			}
+			else {
+				return this.getParent(parent.$parent);
+			}
+		},
 		getValue: function (defulatValue) {
 
 			defulatValue = defulatValue !== undefined ? defulatValue : null;
