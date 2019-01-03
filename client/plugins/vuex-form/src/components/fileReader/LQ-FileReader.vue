@@ -1,16 +1,21 @@
 <template>
     <div>
-        <div v-if="loading || !result">
+        <div v-if="loading ">
             loading...
-        </div>
-        <div v-else-if="isImage && result">
-            <!-- <img :src="result" :alt="file.name" /> -->
-   
         </div>
         <div v-else>
             <p>{{file.name}}</p>
         </div>
-        <p v-if="error">{{error.join(', ')}}</p>
+
+        <div v-if="needToCropped()">
+            <lq-cropper v-for="(thumb, index) in thumbnails" :key="`${elementName}_cropper_${index}`" 
+                :viewport="thumb"
+                :element-name="elementName"
+                :thumbnail-index="!updateOriginal ? index : undefined"
+                v-bind="crop"
+            />
+        </div>
+        <!-- <p v-if="error">{{error.join(', ')}}</p> -->
         <button @click="$emit('remove', name)">Delete</button>
        
     </div>
@@ -18,20 +23,24 @@
 <script>
 import  helper, {isImage} from 'vuejs-object-helper';
 import {getFormName} from '../helper';
+import LqCropper from './LQ-Cropper';
 
 export default {
     name: 'LQ-FileReader',
     props: {
-        crop: Object,
+        crop: {
+            type: Object,
+            default: () => {size: 'original'}
+        },
         // crop: {
         //      // [{width: 100, height: 100, type: 'square'}]
         //     boundary: Object, //{ width: 300, height: 300 } 
         // },
         thumbnails:  Array,
-        createThumbnails: {
+        updateOriginal: {
             type: Boolean,
             required: false,
-            default: () => true
+            default: () => false
         },
         elementName:{
             type: String,
@@ -39,7 +48,7 @@ export default {
         }
     },
     components:{
-        //VueCropper
+        LqCropper
     },
     data: function () {
 
@@ -51,21 +60,25 @@ export default {
     },
     computed: {
         file: function () {
+            //console.log('keys', `${this.formName}.values.${this.elementName}.file`);
             return helper.getProp(this.$store.state.form, `${this.formName}.values.${this.elementName}.file`, null);
         }
     },
     created: function () {
+        console.log('Form Name', getFormName(this));
+        this.formName = getFormName(this);
         this.readFile();
     },
     watch: {
 
-        file: function () {
-            this.readFile();
+        file: function (newFile, oldFile) {
+            !oldFile || newFile.name !==  oldFile.name ? this.readFile() : null;
         }
     },
     methods: {
         
         readFile: function () {  
+            console.log('this.file', this.file);
             if(!this.file) {
                 return;
             }
@@ -80,9 +93,10 @@ export default {
             }
             fReader.readAsDataURL(this.file);
         },
-
         needToCropped: function () {
-            helper.isArray(this.thumbnails)
+            //console.log('needToCropped', this.file);
+            
+            return helper.isArray(this.thumbnails) && this.file;
         }
 
     }

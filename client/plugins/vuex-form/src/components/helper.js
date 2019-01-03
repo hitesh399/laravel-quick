@@ -3,7 +3,18 @@
  * @param {Object} _this 
  */
 export function getFormName (_this) {
-    return _this.formName !== undefined ?  _this.formName : this.getParent(_this.$parent)
+    
+    //return _this.formName !== undefined ?  _this.formName : getFormName(_this.$parent)
+    if( _this.formName !== undefined && _this.formName !== null) {
+        console.log('_this', _this);
+        return _this.formName
+    }
+    else if(_this.$parent) {
+        return getFormName(_this.$parent)
+    }
+    else {
+        return undefined;
+    }
 }
 /**
  * To add string before the file name extension.

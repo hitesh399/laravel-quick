@@ -5,7 +5,9 @@
             <lq-file-reader v-for="(item, index) in LQElement" :elementName="makeElementName()" :key="`${id}_preview${index}`"  v-on:remove="deleteFile" :name="`${id}._preview.${index}`" :file="item.file" />
         </div>
         <div v-else-if="LQElement && LQElement.file">
-            <lq-file-reader :key="`${id}_preview`" :elementName="makeElementName()" :name="`${id}._preview`" :file="LQElement.file" v-on:remove="deleteFile" />
+            <lq-file-reader :key="`${id}_preview`" :elementName="id" 
+            :thumbnails="[{width: 300, height: 150}]" 
+            v-on:remove="deleteFile" />
         </div>
     </div>
 </template>

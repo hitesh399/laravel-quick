@@ -11,6 +11,7 @@
 </template>
 
 <script>
+import  helper, {isImage} from 'vuejs-object-helper';
 import {getFormName, updateFileName, getFileExt} from '../helper';
 
 export default {
@@ -66,8 +67,8 @@ export default {
                 })
             })
         },
-        file: function () {
-            this.readFile();
+        file: function (newFile, oldFile) {
+           !oldFile || newFile.name !==  oldFile.name ? this.readFile() : null;
         }
     },
     methods: {
@@ -86,14 +87,14 @@ export default {
             })
             .then( (blobData) => {
                 let name = this.thumbnailIndex !== undefined ? '_thumb_'+this.thumbnailIndex : '';
-                let newFile = new File([blobData], updateFileName(this.file.name, name), {type: this.circle ? 'png' : fi.type });
+                let newFile = new File([blobData], updateFileName(this.file.name, name), {type: this.circle ? 'png' : this.file.type });
                 let elementName = this.thumbnailIndex !== undefined ? this.elementName+'.file' : this.elementName+'.thumbnails.'+this.thumbnailIndex+'.file';
 
-                this.$store.dispatch('form/setElementValue', {
-                    formName: this.formName,
-                    elementName: elementName,
-                    value: newFile
-                })
+                // this.$store.dispatch('form/setElementValue', {
+                //     formName: this.formName,
+                //     elementName: elementName,
+                //     value: newFile
+                // })
             })
 
         },
