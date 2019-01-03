@@ -1,11 +1,11 @@
 <template>
     <div>
-        <input :multiple="isMultiple()" type="file" @change="handleFileChange"/>
+        <input :multiple="isMultiple()" type="file" @change="handleFileChange" :id="id" :name="makeElementName()"/>
         <div v-if="(!maxNoOfFiles || maxNoOfFiles >1) && LQElement">
-            <lq-file-reader v-for="(item, index) in LQElement" :key="`${id}_preview${index}`"  v-on:remove="deleteFile" :name="`${id}.${index}`" :file="item.file" />
+            <lq-file-reader v-for="(item, index) in LQElement" :elementName="makeElementName()" :key="`${id}_preview${index}`"  v-on:remove="deleteFile" :name="`${id}._preview.${index}`" :file="item.file" />
         </div>
         <div v-else-if="LQElement && LQElement.file">
-            <lq-file-reader :key="`${id}_preview`" :name="id" :file="LQElement.file" v-on:remove="deleteFile" />
+            <lq-file-reader :key="`${id}_preview`" :elementName="makeElementName()" :name="`${id}._preview`" :file="LQElement.file" v-on:remove="deleteFile" />
         </div>
     </div>
 </template>

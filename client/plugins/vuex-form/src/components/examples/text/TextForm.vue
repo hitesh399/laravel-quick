@@ -3,7 +3,7 @@
   <el-header>Header</el-header>
   <el-main>
 	  <h1> Text Element Examples</h1>
-
+	<lq-file :max-no-of-files="1" id="photoa" acceptedFiles="image/*"/>
 		<table>
 			<tr>
 				<td>
