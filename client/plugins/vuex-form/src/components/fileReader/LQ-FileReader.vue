@@ -34,14 +34,9 @@ import  helper, {isImage} from 'vuejs-object-helper';
 export default {
     name: 'LQ-FileReader',
     props: {
-        file :{
-            type: File,
-            required: true
-        },
-        name: {
-            type: String,
-            required: true,
-        },
+      
+        thumbnails:  Array, // [{width: 100, height: 100, type: 'square'}]
+        boundary: Object, //{ width: 300, height: 300 } 
         elementName:{
             type: String,
             required: true
@@ -58,32 +53,6 @@ export default {
             loading: false,
             formName: null,
             //cropImage: null
-        }
-    },
-    computed: {
-        error: function () {
-            console.log('this.name]', this.name, this.formName);
-			return helper.getProp(this.$store.state.form, [this.formName, 'errors', this.name], null);
-		}
-    },
-    created() {
-        this.formName = this.getParent().formName;
-        console.log('This........', this);
-        this.readFile();
-        
-    },
-    watch:{
-        result: function (newVal, oldVal) {
-            //console.log('ddddddd', newVal, oldVal);
-            this.$nextTick(() => {
-                this.$refs.croppieRef.bind({
-                    url: newVal,
-                    zoom:0
-                })
-            })
-        },
-        file: function () {
-            this.readFile();
         }
     },
     methods: {
@@ -103,32 +72,8 @@ export default {
 				return this.getParent(parent.$parent);
 			}
         },
-        fn1: function () {
-            console.log('fn1')
-        },
-        fn2: function (a1,a2,a3) {
-            console.log('fn2', a1,a2,a3)
-            //console.log('Result 2', );
-            this.$refs.croppieRef.result({ type: 'blob', size:'original', format:'png', quality: 1, circle: false }).then(function(d){
-                console.log('Result ', d)
-                console.log('Result File:, ', new File([d], "test.jpeg", {lastModified: new Date()}));
-            })
 
-        },
-        readFile: function () {
-
-            let fReader = new FileReader();
-            this.loading = true;
-
-            fReader.onload = (e) => {
-
-                this.isImage  =  isImage(e.target.result) ? true : false;
-                this.loading = false;
-                this.result = e.target.result;
-                //this.trick
-            }
-            fReader.readAsDataURL(this.file);
-        }
+        
     }
 }
 </script>
