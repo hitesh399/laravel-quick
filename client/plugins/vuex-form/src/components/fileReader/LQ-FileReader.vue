@@ -5,19 +5,7 @@
         </div>
         <div v-else-if="isImage && result">
             <!-- <img :src="result" :alt="file.name" /> -->
-            
-            <vue-croppie 
-            ref="croppieRef" 
-            :enableOrientation="true"
-            :enableZoom="true"
-            :mouseWheelZoom="false"
-            :enableResize="false"
-            :showZoomer="true"
-            :viewport="{ width: 200, height: 200, type: 'square' }"
-            :boundary="{ width: 300, height: 300 }"
-            @result="fn1"
-            @update="fn2">
-        </vue-croppie>
+   
         </div>
         <div v-else>
             <p>{{file.name}}</p>
@@ -29,14 +17,22 @@
 </template>
 <script>
 import  helper, {isImage} from 'vuejs-object-helper';
-//import VueCropper from 'vue-cropperjs';
+import {getFormName} from '../helper';
 
 export default {
     name: 'LQ-FileReader',
     props: {
-      
-        thumbnails:  Array, // [{width: 100, height: 100, type: 'square'}]
-        boundary: Object, //{ width: 300, height: 300 } 
+        crop: Object,
+        // crop: {
+        //      // [{width: 100, height: 100, type: 'square'}]
+        //     boundary: Object, //{ width: 300, height: 300 } 
+        // },
+        thumbnails:  Array,
+        createThumbnails: {
+            type: Boolean,
+            required: false,
+            default: () => true
+        },
         elementName:{
             type: String,
             required: true
@@ -49,31 +45,46 @@ export default {
 
         return {
             isImage: null,
-            result: null,
-            loading: false,
             formName: null,
-            //cropImage: null
+            loading: false
+        }
+    },
+    computed: {
+        file: function () {
+            return helper.getProp(this.$store.state.form, `${this.formName}.values.${this.elementName}.file`, null);
+        }
+    },
+    created: function () {
+        this.readFile();
+    },
+    watch: {
+
+        file: function () {
+            this.readFile();
         }
     },
     methods: {
-        delete: function () {
-            console.log('Native Event to delete..')
-        },
-        cropImage: function (cropImage) {
-            console.log('cropImage', cropImage)
-        },
-        getParent: function (parent) {
-			parent = !parent ? this.$parent : parent;
-			
-			if(parent.formName !== undefined) {
-				return parent;
-			}
-			else {
-				return this.getParent(parent.$parent);
-			}
+        
+        readFile: function () {  
+            if(!this.file) {
+                return;
+            }
+
+            let fReader = new FileReader();
+            this.loading = true;
+
+            fReader.onload = (e) => {
+
+                this.isImage  =  isImage(e.target.result) ? true : false;
+                this.loading = false;
+            }
+            fReader.readAsDataURL(this.file);
         },
 
-        
+        needToCropped: function () {
+            helper.isArray(this.thumbnails)
+        }
+
     }
 }
 </script>

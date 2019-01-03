@@ -11,7 +11,7 @@
 </template>
 
 <script>
-import {getFormName} from '../helper';
+import {getFormName, updateFileName, getFileExt} from '../helper';
 
 export default {
     name: 'LQ-Cropper',
@@ -27,7 +27,17 @@ export default {
         boundary: {
             type: Object,
             default() { return { width: 300, height: 300 }; }
-        }
+        },
+        circle: {
+            type: Boolean,
+            default:() => false,
+        },
+        size: {
+            type: String,
+            validator: (val) => ['viewport', 'original'].includes(val),
+            default: () => 'original'
+        },
+        thumbnailIndex: Number, // If thumbnailIndex is not undefined that means need to create the thubnials otherwise update the Main file data
     },
     data: function () {
         return {
@@ -65,11 +75,25 @@ export default {
             console.log('fn1')
         },
         updateFileData: function (a1,a2,a3) {
-            console.log('fn2', a1,a2,a3)
+            //console.log('fn2', a1,a2,a3)
             //console.log('Result 2', );
-            this.$refs.croppieRef.result({ type: 'blob', size:'original', format:'png', quality: 1, circle: false }).then(function(d){
-                console.log('Result ', d)
-                console.log('Result File:, ', new File([d], "test.jpeg", {lastModified: new Date()}));
+            this.$refs.croppieRef.result({ 
+                type: 'blob', 
+                size: this.size, 
+                format: this.circle ? 'png' : getFileExt(this.file.name), 
+                quality: 1, 
+                circle: this.circle 
+            })
+            .then( (blobData) => {
+                let name = this.thumbnailIndex !== undefined ? '_thumb_'+this.thumbnailIndex : '';
+                let newFile = new File([blobData], updateFileName(this.file.name, name), {type: this.circle ? 'png' : fi.type });
+                let elementName = this.thumbnailIndex !== undefined ? this.elementName+'.file' : this.elementName+'.thumbnails.'+this.thumbnailIndex+'.file';
+
+                this.$store.dispatch('form/setElementValue', {
+                    formName: this.formName,
+                    elementName: elementName,
+                    value: newFile
+                })
             })
 
         },

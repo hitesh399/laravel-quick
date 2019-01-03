@@ -11,7 +11,15 @@ export function getFormName (_this) {
  * @param {String} include 
  */
 export function updateFileName(name, include) {
-    var name_arr = name.split('.');
+    let name_arr = name.split('.');
     name_arr[name_arr.length -1] = include + '.' + name_arr[name_arr.length -1];
     return name_arr.join('.');
-} 
+}
+/**
+ * To get the file extension.
+ * @param {String} name 
+ */
+export function getFileExt(name) {
+    let name_arr = name.split('.');
+    return name_arr[name_arr.length -1];
+}
