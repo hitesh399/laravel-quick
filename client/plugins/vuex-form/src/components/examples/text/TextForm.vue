@@ -3,7 +3,8 @@
   <el-header>Header</el-header>
   <el-main>
 	  <h1> Text Element Examples</h1>
-	<lq-file :max-no-of-files="1" id="photoa" acceptedFiles="image/*"/>
+	<lq-file :max-no-of-files="1" id="photoa" name="xyz" acceptedFiles="image/*"/>
+	<lq-file-reader key="xyz_preview"  elementName="xyz"  />
 		<table>
 			<tr>
 				<td>
@@ -85,14 +86,15 @@
 	import lqText from '../../text/LQ-Text';
 	import lqFile from '../../file/LQ-File';
 	import validationRule from './MyProfileValidation';
-
+	import LqFileReader from '../../fileReader/LQ-FileReader';
 	export default {
 		name: 'example-text-form',
 		inheritAttrs: true,
 		mixins: [form],
 		components: {
 			lqText,
-			lqFile
+			lqFile,
+			LqFileReader
 		},
 		data: function () {
 

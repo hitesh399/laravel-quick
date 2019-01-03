@@ -9,9 +9,10 @@
             <vue-croppie 
             ref="croppieRef" 
             :enableOrientation="true"
+            :enableZoom="true"
             :mouseWheelZoom="false"
             :enableResize="false"
-            :showZoomer="false"
+            :showZoomer="true"
             :viewport="{ width: 200, height: 200, type: 'square' }"
             :boundary="{ width: 300, height: 300 }"
             @result="fn1"
@@ -35,11 +36,11 @@ export default {
     props: {
         file :{
             type: File,
-            required: true
+            required: false
         },
         name: {
             type: String,
-            required: true,
+            required: false,
         },
         elementName:{
             type: String,
@@ -62,22 +63,29 @@ export default {
     computed: {
         error: function () {
             console.log('this.name]', this.name, this.formName);
+            
 			return helper.getProp(this.$store.state.form, [this.formName, 'errors', this.name], null);
 		}
     },
     created() {
         this.formName = this.getParent().formName;
         console.log('This........', this);
-        this.readFile();
         
+        //this.readFile();
+        
+    },
+    mounted: function () {
+        console.log('elementName',this.$els)
     },
     watch:{
         result: function (newVal, oldVal) {
             //console.log('ddddddd', newVal, oldVal);
             this.$nextTick(() => {
                 this.$refs.croppieRef.bind({
-                    url: newVal
+                    url: newVal,
+                    zoom: 0
                 })
+                //this.$refs.croppieRef.setZoom(50);
             })
         },
         file: function () {

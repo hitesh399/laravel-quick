@@ -23,7 +23,7 @@ const fileMixIn = {
 		// 	default : () => { return null; }
 		// },
 		// acceptedFiles: {
-		// 	type: [String, Array],
+		// 	type: [String, Arcreateray],
 		// 	required: false,
 		// 	default: () => { return null; }
 		// },
@@ -69,6 +69,10 @@ const fileMixIn = {
                 return isValid;
             }
         }
+    },
+    created: function () {  
+        this.$lqfiles = !this.$lqfiles ? [] : this.$lqfiles;
+        this.$lqfiles[this.id] = this;
     },
     methods: {
 
